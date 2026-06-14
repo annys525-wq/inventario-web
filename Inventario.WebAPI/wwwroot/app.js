@@ -3,9 +3,7 @@
 // ══════════════════════════════════════════
 // En producción (Railway), el frontend y el backend están en el mismo servidor,
 // por lo que usamos rutas relativas. En desarrollo local, apuntamos a localhost.
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? "http://localhost:5115/api"
-  : "/api";
+const API_URL = "/api";
 
 let DB = { users: [], products: [], customers: [], suppliers: [], purchases: [], audit: [], queue: [], sales: [] };
 let session = null;
