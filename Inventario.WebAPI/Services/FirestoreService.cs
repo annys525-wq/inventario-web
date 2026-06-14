@@ -115,9 +115,9 @@ namespace Inventario.WebAPI.Services
             // Contraseña de prueba para todos los usuarios semilla (Hash SHA256 de 'admin123', 'vendedor123', 'bodega123')
             string seedUsers = @"
                 INSERT OR IGNORE INTO CloudUsers (Id, Username, PasswordHash, FullName, Email, Role, IsActive, CreatedAt, UpdatedAt) VALUES
-                ('u1', 'admin', '24078914630b275b762b8004401565551db777271922c070494cf078dc115ff6', 'Administrador General', 'admin@empresa.com', 0, 1, '2026-05-26T00:00:00Z', '2026-05-26T00:00:00Z'),
-                ('u2', 'vendedor', 'cc8d6d678beffea126fb98f9a2631a0e10e6a147e448b309001b920bf803b984', 'Juan Vendedor', 'juan.sales@empresa.com', 1, 1, '2026-05-26T00:00:00Z', '2026-05-26T00:00:00Z'),
-                ('u3', 'bodega', 'fce7560b2eb3df163e7c8a410313f890251784ff9398863f6a2b8e3ad5d35a66', 'Marta Bodega', 'marta.inv@empresa.com', 2, 1, '2026-05-26T00:00:00Z', '2026-05-26T00:00:00Z');";
+                ('u1', 'admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Administrador General', 'admin@empresa.com', 0, 1, '2026-05-26T00:00:00Z', '2026-05-26T00:00:00Z'),
+                ('u2', 'vendedor', '56976bf24998ca63e35fe4f1e2469b5751d1856003e8d16fef0aafef496ed044', 'Juan Vendedor', 'juan.sales@empresa.com', 1, 1, '2026-05-26T00:00:00Z', '2026-05-26T00:00:00Z'),
+                ('u3', 'bodega', '3e2388e8ceddc313076daab3e4eb98a3feb2c0da2464e9c632eff130483208eb', 'Marta Bodega', 'marta.inv@empresa.com', 2, 1, '2026-05-26T00:00:00Z', '2026-05-26T00:00:00Z');";
 
             string seedProducts = @"
                 INSERT OR IGNORE INTO CloudProducts (Id, SKU, Name, Category, Cost, Price, WarehouseMain, WarehouseSecondary, MinimumStock, UpdatedAt, UpdatedBy) VALUES
