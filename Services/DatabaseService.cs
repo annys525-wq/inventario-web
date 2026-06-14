@@ -605,6 +605,41 @@ namespace InventarioApp.Services
                 }
             }
         }
+        //anamaria
+        public void SeedAdminUser()
+        {
+            using var con = new SQLiteConnection(_connectionString);
+            con.Open();
+
+            // Crea la tabla si no existe
+            con.Execute(@"
+                CREATE TABLE IF NOT EXISTS Users (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Username TEXT NOT NULL UNIQUE,
+                    PasswordHash TEXT NOT NULL
+                );");
+
+            // Si no hay admin, lo inserta
+            var exists = con.QuerySingleOrDefault<int>(
+                "SELECT COUNT(1) FROM Users WHERE Username = @u",
+                new { u = "admin" });
+
+            if (exists == 0)
+            {
+                var hash = BCrypt.Net.BCrypt.HashPassword("admin123");
+                con.Execute(
+                    "INSERT INTO Users (Username, PasswordHash) VALUES (@u, @p)",
+                    new { u = "admin", p = hash });
+            }
+            var db = builder.Services.BuildServiceProvider()
+             .GetRequiredService<DatabaseService>();
+db.SeedAdminUser();
+
+        }
+
         #endregion
+        
+
+
     }
 }
