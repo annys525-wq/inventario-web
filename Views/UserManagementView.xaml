@@ -1,6 +1,6 @@
 <UserControl x:Class="InventarioApp.Views.UserManagementView"
-             xmlns="http://schemas.microsoft.com/winfx/2000/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2000/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:InventarioApp.Views"
@@ -23,9 +23,9 @@
         <!-- Si el usuario no tiene acceso, muestra cartel de denegación -->
         <Grid Visibility="{Binding HasAccess, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Collapsed}">
             <Border Background="#200a0b" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" CornerRadius="6" Padding="30" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
-                <StackPanel Spacing="15" HorizontalAlignment="Center">
-                    <TextBlock Text="🔒 ACCESO DENEGADO" Foreground="{StaticResource DangerBrush}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
-                    <TextBlock Text="El panel de control de usuarios y auditoría es exclusivo para administradores de la empresa." Foreground="{StaticResource TextWhiteBrush}" FontSize="13" TextAlignment="Center" TextWrapping="Wrap"/>
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🔒 ACCESO DENEGADO" Foreground="{StaticResource DangerBrush}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                    <TextBlock Text="El panel de control de usuarios y auditoría es exclusivo para administradores de la empresa." Foreground="{StaticResource TextWhiteBrush}" FontSize="13" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,15"/>
                     <TextBlock Text="Este intento de acceso ha sido registrado en la bitácora de seguridad." Foreground="{StaticResource TextDimBrush}" FontSize="11" TextAlignment="Center" FontWeight="Italic"/>
                 </StackPanel>
             </Border>
@@ -127,47 +127,47 @@
 
                     <!-- Formulario de Entrada -->
                     <ScrollViewer Grid.Row="1" Style="{StaticResource ModernScrollViewer}" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15">
-                        <StackPanel Spacing="12" Padding="0,0,5,0">
+                        <StackPanel Margin="0,0,5,0">
                             <!-- Nombre de Usuario -->
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="Nombre de Usuario (Login)" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,0,0,5"/>
                                 <TextBox Text="{Binding UsernameInput, UpdateSourceTrigger=PropertyChanged}" Height="34" VerticalContentAlignment="Center"/>
                             </StackPanel>
-
+ 
                             <!-- Contraseña -->
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="Contraseña" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,0,0,5"/>
                                 <TextBox Text="{Binding PasswordInput, UpdateSourceTrigger=PropertyChanged}" Height="34" VerticalContentAlignment="Center" ToolTip="Dejar en blanco para conservar clave al editar."/>
-                                <TextBlock Text="* Requerido para usuarios nuevos. Al editar, llene solo si desea cambiar la clave." Foreground="{StaticResource TextDimBrush}" FontSize="10" Margin="0,3,0,0" Italic="True"/>
+                                <TextBlock Text="* Requerido para usuarios nuevos. Al editar, llene solo si desea cambiar la clave." Foreground="{StaticResource TextDimBrush}" FontSize="10" Margin="0,3,0,0" FontStyle="Italic"/>
                             </StackPanel>
-
+ 
                             <!-- Nombre Completo -->
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="Nombre Completo" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,0,0,5"/>
                                 <TextBox Text="{Binding FullNameInput, UpdateSourceTrigger=PropertyChanged}" Height="34" VerticalContentAlignment="Center"/>
                             </StackPanel>
-
+ 
                             <!-- Correo Electrónico -->
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="Correo Electrónico" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,0,0,5"/>
                                 <TextBox Text="{Binding EmailInput, UpdateSourceTrigger=PropertyChanged}" Height="34" VerticalContentAlignment="Center"/>
                             </StackPanel>
-
+ 
                             <!-- Rol Empresarial -->
-                            <StackPanel>
+                            <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="Rol Asignado" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,0,0,5"/>
                                 <ComboBox ItemsSource="{Binding Source={StaticResource RolesEnum}}" SelectedItem="{Binding RoleInput}" Height="34" VerticalContentAlignment="Center"/>
                             </StackPanel>
-
+ 
                             <!-- Estado Activo/Inactivo -->
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,12">
                                 <CheckBox IsChecked="{Binding IsActiveInput}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <TextBlock Text="Usuario Activo (Permite el inicio de sesión)" Foreground="{StaticResource TextWhiteBrush}" FontSize="12" VerticalAlignment="Center"/>
                             </StackPanel>
-
+ 
                             <Border Background="#1b1b1c" CornerRadius="4" Padding="12" Margin="0,10,0,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
-                                <StackPanel Spacing="5">
-                                    <TextBlock Text="Matriz de Permisos del Rol Seleccionado:" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="Bold"/>
+                                <StackPanel>
+                                    <TextBlock Text="Matriz de Permisos del Rol Seleccionado:" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="Bold" Margin="0,0,0,5"/>
                                     
                                     <!-- Muestra permisos dinámicos según el Rol cargado en el ComboBox -->
                                     <StackPanel Visibility="{Binding RoleInput, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Administrador}">

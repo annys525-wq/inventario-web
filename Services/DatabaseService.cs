@@ -112,7 +112,7 @@ namespace InventarioApp.Services
 
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = createUsersTable + createAuditTable + createSyncTable + createProductsTable + createCustomersTable + createSuppliersTable + createPurchasesTable + createPurchaseLinesTable;
+                    command.CommandText = createUsersTable + createAuditTable + createSyncTable + createProductsTable + createCustomersTable + createSuppliersTable;
                     command.ExecuteNonQuery();
                 }
 
@@ -143,11 +143,18 @@ namespace InventarioApp.Services
             // vendedor123 hash: cc8d6d678beffea126fb98f9a2631a0e10e6a147e448b309001b920bf803b984
             // bodega123 hash: fce7560b2eb3df163e7c8a410313f890251784ff9398863f6a2b8e3ad5d35a66
 
-            string seedUsers = @"
-                INSERT OR IGNORE INTO Users (Id, Username, PasswordHash, FullName, Email, Role, IsActive, CreatedAt) VALUES
-                ('u1', 'admin', '24078914630b275b762b8004401565551db777271922c070494cf078dc115ff6', 'Administrador General', 'admin@empresa.com', 0, 1, '2026-05-26T00:00:00Z'),
-                ('u2', 'vendedor', 'cc8d6d678beffea126fb98f9a2631a0e10e6a147e448b309001b920bf803b984', 'Juan Vendedor', 'juan.sales@empresa.com', 1, 1, '2026-05-26T00:00:00Z'),
-                ('u3', 'bodega', 'fce7560b2eb3df163e7c8a410313f890251784ff9398863f6a2b8e3ad5d35a66', 'Marta Bodega', 'marta.inv@empresa.com', 2, 1, '2026-05-26T00:00:00Z');";
+            string seedUsers;
+            using (var adminHashConn = new Microsoft.Data.Sqlite.SqliteConnection(_connectionString))
+            {
+                adminHashConn.Open();
+                var adminHash = BCrypt.Net.BCrypt.HashPassword("admin123");
+                var vendedorHash = BCrypt.Net.BCrypt.HashPassword("vendedor123");
+                var bodegaHash = BCrypt.Net.BCrypt.HashPassword("bodega123");
+                seedUsers = $@"INSERT OR IGNORE INTO Users (Id, Username, PasswordHash, FullName, Email, Role, IsActive, CreatedAt) VALUES
+                ('u1', 'admin', '{adminHash}', 'Administrador General', 'admin@empresa.com', 0, 1, '2026-05-26T00:00:00Z'),
+                ('u2', 'vendedor', '{vendedorHash}', 'Juan Vendedor', 'juan.sales@empresa.com', 1, 1, '2026-05-26T00:00:00Z'),
+                ('u3', 'bodega', '{bodegaHash}', 'Marta Bodega', 'marta.inv@empresa.com', 2, 1, '2026-05-26T00:00:00Z');";
+            }
 
             string seedProducts = @"
                 INSERT OR IGNORE INTO Products (Id, SKU, Name, Category, Cost, Price, WarehouseMain, WarehouseSecondary, MinimumStock, UpdatedAt, UpdatedBy) VALUES
@@ -605,41 +612,7 @@ namespace InventarioApp.Services
                 }
             }
         }
-        //anamaria
-        public void SeedAdminUser()
-        {
-            using var con = new SQLiteConnection(_connectionString);
-            con.Open();
-
-            // Crea la tabla si no existe
-            con.Execute(@"
-                CREATE TABLE IF NOT EXISTS Users (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Username TEXT NOT NULL UNIQUE,
-                    PasswordHash TEXT NOT NULL
-                );");
-
-            // Si no hay admin, lo inserta
-            var exists = con.QuerySingleOrDefault<int>(
-                "SELECT COUNT(1) FROM Users WHERE Username = @u",
-                new { u = "admin" });
-
-            if (exists == 0)
-            {
-                var hash = BCrypt.Net.BCrypt.HashPassword("admin123");
-                con.Execute(
-                    "INSERT INTO Users (Username, PasswordHash) VALUES (@u, @p)",
-                    new { u = "admin", p = hash });
-            }
-            var db = builder.Services.BuildServiceProvider()
-             .GetRequiredService<DatabaseService>();
-db.SeedAdminUser();
-
-        }
-
         #endregion
-        
-
 
     }
 }

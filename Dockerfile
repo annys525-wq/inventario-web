@@ -32,3 +32,4 @@ EXPOSE 8080
 
 # Program.cs lee la variable PORT en tiempo de ejecucion
 ENTRYPOINT ["dotnet", "Inventario.WebAPI.dll"]
+

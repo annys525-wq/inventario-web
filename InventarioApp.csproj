@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <AssemblyName>InventarioApp</AssemblyName>
+    <RootNamespace>InventarioApp</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -11,9 +13,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Inventario.WebAPI\**" />
+    <EmbeddedResource Remove="Inventario.WebAPI\**" />
+    <None Remove="Inventario.WebAPI\**" />
   </ItemGroup>
 
 </Project>

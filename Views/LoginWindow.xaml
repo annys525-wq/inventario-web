@@ -1,6 +1,6 @@
 <Window x:Class="InventarioApp.Views.LoginWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2000/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2000/xaml"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InventarioApp.Views"
@@ -22,12 +22,12 @@
             </LinearGradientBrush>
         </Grid.Background>
 
-        <Border CornerRadius="8" Margin="24" Background="{StaticResource BgCardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Border CornerRadius="8" Margin="24" Background="{StaticResource BgCardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="30">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="25" Color="#000000" Opacity="0.5" ShadowDepth="5"/>
             </Border.Effect>
             
-            <Grid Padding="30">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- Cabecera Logo -->
                     <RowDefinition Height="Auto"/> <!-- Input Usuario -->

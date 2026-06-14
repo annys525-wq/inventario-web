@@ -58,14 +58,12 @@ namespace InventarioApp.Services
                 return false;
             }
 
-            string hash = HashPassword(password);
-            if (user.PasswordHash != hash)
+            if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
                 _audit.LogSecurityEvent(user.Id, user.Username, "Login_Failed", $"Intento de acceso fallido: Contraseña incorrecta para '{username}'.");
                 return false;
             }
 
-            // Exitoso: Generar JWT
             CurrentUser = user;
             CurrentJwtToken = GenerateJwtToken(user);
 
