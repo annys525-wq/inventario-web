@@ -1,0 +1,27 @@
+# Archivos de compilación .NET
+bin/
+obj/
+*.user
+
+# Base de datos local (SQLite)
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos y configuración local
+appsettings.Development.json
+*.pfx
+*.p12
+
+# Visual Studio
+.vs/
+*.suo
+*.userprefs
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log

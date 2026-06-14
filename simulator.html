@@ -1,0 +1,4351 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockPoint — Sistema de Gestión Empresarial</title>
+  <style>
+    :root {
+      --bg-dark: #121212;
+      --bg-card: #1e1e1e;
+      --bg-sidebar: #181818;
+      --accent: #0078d4;
+      --accent-hover: #1086e4;
+      --text-white: #ffffff;
+      --text-dim: #b0b0b0;
+      --border: #2d2d2d;
+      --border-light: #3d3d3d;
+      --success: #107c41;
+      --warning: #d83b01;
+      --danger: #e81123;
+      --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-dark);
+      color: var(--text-white);
+      overflow: hidden;
+      height: 100vh;
+      user-select: none;
+    }
+
+    /* ── LOGIN ── */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0c0c0c, #1a1030);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .login-card {
+      width: 400px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
+      text-align: center;
+    }
+
+    .logo-circle {
+      width: 64px;
+      height: 64px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .login-card h2 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .login-card .subtitle {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 38px;
+      background: #252526;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: white;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+      font-family: var(--font);
+      transition: border-color .15s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+      background: #1a1a1a;
+    }
+
+    select.form-control {
+      cursor: pointer;
+    }
+
+    textarea.form-control {
+      height: auto;
+      padding: 8px 12px;
+      resize: vertical;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
+      min-height: 18px;
+      margin: 8px 0;
+    }
+
+    .login-footer {
+      margin-top: 28px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      font-size: 10px;
+      color: var(--text-dim);
+      line-height: 1.8;
+    }
+
+    .login-footer code {
+      background: #2a2a2a;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #7ec8e3;
+    }
+
+    /* ── BOTONES ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      padding: 0 16px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background .15s, transform .1s;
+      font-family: var(--font);
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn-full {
+      width: 100%;
+      height: 40px;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .btn-sm {
+      height: 28px;
+      font-size: 11px;
+      padding: 0 10px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-light);
+    }
+
+    .btn-secondary:hover {
+      background: #252526;
+      border-color: var(--accent);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: #ff3b4b;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+    }
+
+    .btn-warning:hover {
+      background: #e84f01;
+    }
+
+    .btn-success {
+      background: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #128a4a;
+    }
+
+    .btn-purple {
+      background: #6b2fa0;
+    }
+
+    .btn-purple:hover {
+      background: #7c3ab8;
+    }
+
+    /* ── SHELL ── */
+    #app-shell {
+      display: none;
+      height: 100vh;
+      grid-template-columns: 230px 1fr;
+    }
+
+    aside {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-brand {
+      margin-bottom: 22px;
+    }
+
+    .sidebar-brand h1 {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    .sidebar-brand p {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .user-badge {
+      background: #202020;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 26px;
+    }
+
+    .user-badge h4 {
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .role-tag {
+      background: #333;
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .online-dot {
+      font-size: 11px;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .menu-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .menu-list::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .menu-list::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
+
+    .menu-item {
+      width: 100%;
+      height: 36px;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: var(--text-white);
+      text-align: left;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background .12s;
+    }
+
+    .menu-item:hover {
+      background: #252526;
+    }
+
+    .menu-item.active {
+      background: #252526;
+      border-left: 3px solid var(--accent);
+      padding-left: 11px;
+    }
+
+    .menu-cat {
+      font-size: 9px;
+      font-weight: bold;
+      color: var(--text-dim);
+      margin: 14px 0 5px 8px;
+      letter-spacing: .5px;
+    }
+
+    /* ── MAIN ── */
+    main {
+      display: grid;
+      grid-template-rows: 65px 1fr 30px;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    header h3 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .net-pill {
+      border: 1px solid var(--border-light);
+      background: #181818;
+      border-radius: 4px;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .net-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--success);
+      transition: background .3s;
+    }
+
+    .net-pill.offline .net-dot {
+      background: var(--warning);
+    }
+
+    .net-toggle {
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    .outbox-pill {
+      background: #252526;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 11px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .outbox-n {
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* ── WORKSPACE ── */
+    .workspace {
+      padding: 18px 20px;
+      overflow-y: auto;
+      background: var(--bg-dark);
+    }
+
+    .workspace::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .workspace::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* ── CARDS / TABLES ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: calc(100vh - 80px);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kpi {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .kpi h5 {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-weight: bold;
+      letter-spacing: .5px;
+    }
+
+    .kpi h2 {
+      font-size: 26px;
+      font-weight: bold;
+      margin: 6px 0 4px;
+    }
+
+    .kpi p {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .db-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .db-grid>* {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #2a2a2b;
+      text-align: left;
+      padding: 9px 10px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #222;
+    }
+
+    tr {
+      background: #1a1a1a;
+    }
+
+    tr:nth-child(even) {
+      background: #202020;
+    }
+
+    tr:hover {
+      background: #2d2d30;
+      cursor: pointer;
+    }
+
+    tr.sel-row {
+      background: #005a9e !important;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .tag-ok {
+      background: var(--success);
+      color: white;
+    }
+
+    .tag-low {
+      background: var(--danger);
+      color: white;
+    }
+
+    .tag-inactive {
+      background: #444;
+      color: #aaa;
+    }
+
+    .tag-pipeline {
+      background: #1a3a5c;
+      color: #7ec8e3;
+    }
+
+    .tag-sale {
+      background: #1a3a1a;
+      color: #7effa0;
+    }
+
+    .tag-cancel {
+      background: #3a1a1a;
+      color: #ff7e7e;
+    }
+
+    /* ── CRM / CRUD ── */
+    .crud-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .crud-layout>.card {
+      flex: 3;
+      min-width: 340px;
+    }
+
+    .crud-layout>.form-card {
+      flex: 2;
+      min-width: 320px;
+    }
+
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 80px);
+    }
+
+    .form-scroll {
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 4px;
+      max-height: 430px;
+    }
+
+    .form-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .form-scroll::-webkit-scrollbar-thumb {
+      background: #3d3d3d;
+      border-radius: 3px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .form-actions .spacer {
+      flex: 1;
+    }
+
+    .perm-box {
+      background: #1b1b1c;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 14px;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .perm-box h6 {
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .denied-box {
+      background: #200a0b;
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      padding: 32px;
+      width: 500px;
+      margin: 60px auto;
+      text-align: center;
+    }
+
+    .denied-box h3 {
+      color: var(--danger);
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    /* ── VENTAS LAYOUT ── */
+    .sales-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 14px;
+      height: calc(100vh - 150px);
+    }
+
+    .sales-left {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .sales-right {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    /* Scanner Bar */
+    .scanner-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .scanner-bar label {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .ean-input {
+      flex: 1;
+      height: 40px;
+      background: #1a1a1a;
+      border: 2px solid var(--accent);
+      border-radius: 4px;
+      color: white;
+      padding: 0 14px;
+      font-size: 15px;
+      outline: none;
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+
+    .ean-input:focus {
+      background: #0d1a2b;
+    }
+
+    .scan-blink {
+      animation: blink .8s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        border-color: var(--accent);
+      }
+
+      50% {
+        border-color: #00c8ff;
+      }
+    }
+
+    .scanner-hint {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .scanner-error {
+      color: var(--danger);
+      font-size: 11px;
+      font-weight: 600;
+      min-height: 16px;
+    }
+
+    /* Carrito */
+    .cart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .cart-table-wrap {
+      flex: 1;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    .cart-table-wrap::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .cart-table-wrap::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
+
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .cart-table th {
+      background: #2a2a2b;
+      padding: 7px 8px;
+      text-align: left;
+      font-size: 11px;
+      position: sticky;
+      top: 0;
+    }
+
+    .cart-table td {
+      padding: 7px 8px;
+      border-bottom: 1px solid #222;
+    }
+
+    .cart-table tr:hover {
+      background: #2d2d30;
+    }
+
+    .qty-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .qty-btn {
+      width: 22px;
+      height: 22px;
+      background: #333;
+      border: none;
+      color: white;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .qty-btn:hover {
+      background: var(--accent);
+    }
+
+    .qty-val {
+      width: 30px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .del-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 5px;
+    }
+
+    .del-btn:hover {
+      background: #2a1212;
+      border-radius: 3px;
+    }
+
+    .cart-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+
+    .cart-empty .icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    /* Panel derecho - Resumen */
+    .summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .summary-card h4 {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      color: var(--text-dim);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 5px 0;
+    }
+
+    .summary-row.total {
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+      padding-top: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      color: var(--accent);
+    }
+
+    .client-sel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+    }
+
+    .client-sel h4 {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--text-dim);
+    }
+
+    .client-info {
+      background: #1b1b1c;
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 11px;
+      margin-top: 6px;
+      min-height: 40px;
+    }
+
+    .client-info strong {
+      color: var(--accent);
+    }
+
+    .pay-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+    }
+
+    .pay-card h4 {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--text-dim);
+    }
+
+    .pay-method {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .pay-btn {
+      flex: 1;
+      height: 32px;
+      border: 1px solid var(--border-light);
+      background: transparent;
+      color: var(--text-dim);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+
+    .pay-btn.sel {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .action-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-finalize {
+      height: 44px;
+      font-size: 15px;
+      background: linear-gradient(135deg, #107c41, #128a4a);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: opacity .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-finalize:hover {
+      opacity: .9;
+    }
+
+    .btn-finalize:disabled {
+      background: #2a3a2a;
+      color: #555;
+      cursor: not-allowed;
+    }
+
+    /* ── BOTÓN FINALIZAR XL ── */
+    .btn-finalize-xl {
+      width: 100%;
+      height: 58px;
+      background: linear-gradient(135deg, #107c41 0%, #0e6b38 50%, #128a4a 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 900;
+      font-size: 17px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(16, 124, 65, .45);
+      transition: transform .12s, box-shadow .12s, opacity .15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-finalize-xl::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, .08), transparent);
+      pointer-events: none;
+    }
+
+    .btn-finalize-xl:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(16, 124, 65, .6);
+    }
+
+    .btn-finalize-xl:not(:disabled):active {
+      transform: translateY(0);
+    }
+
+    .btn-finalize-xl:disabled {
+      background: #1e2e22;
+      color: #3a5a3a;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 4px 20px rgba(16, 124, 65, .45);
+      }
+
+      50% {
+        box-shadow: 0 4px 32px rgba(16, 124, 65, .85);
+      }
+    }
+
+    .btn-finalize-xl.has-items {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* ── TOTALS MINI BAR ── */
+    .totals-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.4fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .totals-bar-cell {
+      background: #252526;
+      border-radius: 5px;
+      padding: 7px 10px;
+      text-align: center;
+    }
+
+    .totals-bar-cell .lbl {
+      font-size: 9px;
+      color: var(--text-dim);
+      font-weight: bold;
+      letter-spacing: .3px;
+    }
+
+    .totals-bar-cell .val {
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    .totals-bar-cell.highlight {
+      background: var(--accent);
+    }
+
+    .totals-bar-cell.highlight .lbl {
+      color: rgba(255, 255, 255, .75);
+    }
+
+    .totals-bar-cell.highlight .val {
+      font-size: 16px;
+    }
+
+    /* Catálogo rápido */
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .prod-chip {
+      background: #202020;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+
+    .prod-chip:hover {
+      border-color: var(--accent);
+      background: #1a2030;
+    }
+
+    .prod-chip.no-stock {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .prod-chip .ean {
+      font-family: monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+    }
+
+    .prod-chip .pname {
+      font-size: 11px;
+      font-weight: bold;
+      margin: 3px 0;
+      line-height: 1.3;
+    }
+
+    .prod-chip .pprice {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    .prod-chip .pstock {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* ── TICKET MODAL ── */
+    #ticket-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .ticket-box {
+      width: 340px;
+      background: white;
+      color: #111;
+      border-radius: 6px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .8);
+    }
+
+    .ticket-header {
+      background: #0078d4;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .ticket-header h2 {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .ticket-header p {
+      font-size: 10px;
+      margin-top: 2px;
+      opacity: .8;
+    }
+
+    .ticket-body {
+      padding: 16px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .ticket-sep {
+      border: none;
+      border-top: 1px dashed #aaa;
+      margin: 10px 0;
+    }
+
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 3px 0;
+    }
+
+    .ticket-row.bold {
+      font-weight: bold;
+    }
+
+    .ticket-row.total {
+      font-size: 15px;
+      font-weight: bold;
+      border-top: 2px solid #111;
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .ticket-items {}
+
+    .ticket-item {
+      margin: 4px 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px;
+    }
+
+    .ticket-item .item-name {
+      font-weight: bold;
+      font-size: 11px;
+    }
+
+    .ticket-item .item-detail {
+      color: #555;
+      font-size: 10px;
+      grid-column: 1/3;
+    }
+
+    .ticket-footer {
+      background: #f5f5f5;
+      padding: 12px;
+      text-align: center;
+      font-size: 10px;
+      color: #555;
+      border-top: 1px dashed #aaa;
+    }
+
+    .ticket-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #1a1a1a;
+    }
+
+    /* ── HISTORIAL VENTAS ── */
+    .sale-detail-row td {
+      vertical-align: top;
+    }
+
+    .sale-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+    }
+
+    /* ── CONFLICT OVERLAY ── */
+    #conflict-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .conflict-box {
+      width: 900px;
+      max-height: 90vh;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 26px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+      overflow: hidden;
+    }
+
+    .conflict-box h4 {
+      color: var(--warning);
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .conflict-alert {
+      background: #1d160b;
+      border: 1px solid var(--warning);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 11px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .compare-side {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .compare-side h6 {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .compare-side.local h6 {
+      color: var(--accent);
+    }
+
+    .compare-side.remote h6 {
+      color: var(--success);
+    }
+
+    .json-view {
+      background: #151515;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px;
+      font-family: Consolas, monospace;
+      font-size: 11px;
+      overflow: auto;
+      flex: 1;
+      white-space: pre-wrap;
+    }
+
+    .conflict-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    footer {
+      background: var(--bg-sidebar);
+      border-top: 1px solid var(--border);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1e1e1e;
+      border: 1px solid var(--border);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity .3s, transform .3s;
+      z-index: 5000;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.toast-ok {
+      border-color: var(--success);
+      color: #7effa0;
+    }
+
+    #toast.toast-err {
+      border-color: var(--danger);
+      color: #ff8a8a;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════ LOGIN ══════════════ -->
+  <div id="login-overlay">
+    <div class="login-card">
+      <img src="stockpoint_logo.png" alt="StockPoint Logo"
+        style="width:90px;height:90px;object-fit:contain;margin:0 auto 8px;display:block">
+      <h2>StockPoint</h2>
+      <p class="subtitle">Sistema de Gestión de Inventario · Offline-First</p>
+      <div class="form-group">
+        <label>Usuario</label>
+        <input id="l-user" class="form-control" placeholder="admin / vendedor / bodega"
+          onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input id="l-pass" type="password" class="form-control" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div id="l-err" class="error-msg"></div>
+      <button onclick="login()" class="btn btn-full">Iniciar Sesión</button>
+      <div class="login-footer">
+        <strong>Credenciales semilla:</strong><br>
+        Admin: <code>admin</code> / <code>admin123</code> &nbsp;|&nbsp;
+        Vendedor: <code>vendedor</code> / <code>vendedor123</code><br>
+        Bodega: <code>bodega</code> / <code>bodega123</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ APP SHELL ══════════════ -->
+  <div id="app-shell">
+    <aside>
+      <div class="sidebar-brand" style="text-align:center">
+        <img src="stockpoint_logo.png" alt="StockPoint Logo"
+          style="width:70px;height:70px;object-fit:contain;margin:0 auto 6px;display:block">
+        <h1>StockPoint</h1>
+        <p>Sistema de Gestión Empresarial</p>
+      </div>
+      <div class="user-badge">
+        <h4 id="s-name">—</h4>
+        <div class="badge-row">
+          <span id="s-role" class="role-tag">—</span>
+          <span class="online-dot">● Online</span>
+        </div>
+      </div>
+      <ul class="menu-list">
+        <li><button onclick="nav('Dashboard')" id="m-Dashboard" class="menu-item active">📊 Dashboard</button></li>
+        <li><button onclick="nav('Ventas')" id="m-Ventas" class="menu-item">🛒 Nueva Venta</button></li>
+        <li><button onclick="nav('HistorialVentas')" id="m-HistorialVentas" class="menu-item">📑 Historial de
+            Ventas</button></li>
+        <li><button onclick="nav('Compras')" id="m-Compras" class="menu-item">📥 Entrada / Compra</button></li>
+        <li><button onclick="nav('HistorialCompras')" id="m-HistorialCompras" class="menu-item">📑 Historial de
+            Compras</button></li>
+        <li><button onclick="nav('Inventario')" id="m-Inventario" class="menu-item">📦 Inventario</button></li>
+        <li><button onclick="nav('Productos')" id="m-Productos" class="menu-item">🏷️ Productos</button></li>
+        <li><button onclick="nav('CRM')" id="m-CRM" class="menu-item">👥 Clientes</button></li>
+        <li><button onclick="nav('Proveedores')" id="m-Proveedores" class="menu-item">🤝 Proveedores</button></li>
+        <li><button onclick="nav('Reportes')" id="m-Reportes" class="menu-item">📈 Reportes</button></li>
+        <p class="menu-cat">Administración</p>
+        <li><button onclick="nav('Usuarios')" id="m-Usuarios" class="menu-item">🔑 Usuarios</button></li>
+        <li><button onclick="nav('Auditoria')" id="m-Auditoria" class="menu-item">📋 Auditoría</button></li>
+      </ul>
+      <button onclick="logout()" class="btn btn-secondary"
+        style="color:var(--danger);border-color:#442225;margin-top:12px;">Cerrar Sesión</button>
+    </aside>
+
+    <main>
+      <header>
+        <h3 id="tab-title">Dashboard</h3>
+        <div class="sync-bar">
+          <button onclick="forceConflict()" class="btn btn-sm btn-warning">⚡ Conflicto</button>
+          <div id="net-pill" class="net-pill">
+            <div class="net-dot"></div>
+            <span id="net-txt">Online</span>
+            <span class="net-toggle" onclick="toggleNet()">[Alternar]</span>
+          </div>
+          <div class="outbox-pill">
+            <span id="ob-n" class="outbox-n">0</span>
+            <span style="color:var(--text-dim)">pendientes</span>
+          </div>
+          <button onclick="syncNow()" class="btn btn-sm">🔄 Sync</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+
+        <!-- ── DASHBOARD ── -->
+        <div id="p-Dashboard" class="panel active">
+          <div class="kpi-grid">
+            <div class="kpi">
+              <h5>VALOR INVENTARIO</h5>
+              <h2 id="kpi-inv">$0</h2>
+              <p id="kpi-inv-sub">productos en catálogo</p>
+            </div>
+            <div class="kpi">
+              <h5>VENTAS HOY</h5>
+              <h2 id="kpi-sales" style="color:var(--success)">$0</h2>
+              <p id="kpi-sales-sub" style="color:var(--text-dim)">0 transacciones</p>
+            </div>
+            <div class="kpi">
+              <h5>CLIENTES ACTIVOS</h5>
+              <h2 id="kpi-cust" style="color:var(--accent)">0</h2>
+              <p id="kpi-cust-sub" style="color:var(--text-dim)">en pipeline CRM</p>
+            </div>
+            <div class="kpi">
+              <h5>ALERTAS STOCK</h5>
+              <h2 id="kpi-alerts" style="color:var(--danger)">0</h2>
+              <p id="kpi-alerts-sub" style="color:var(--text-dim)">bajo mínimo</p>
+            </div>
+          </div>
+          <div class="db-grid">
+            <div class="card">
+              <div class="card-title">Últimas Ventas</div>
+              <table style="margin-top:12px">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Pago</th>
+                    <th>Hora</th>
+                  </tr>
+                </thead>
+                <tbody id="t-dash-sales"></tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:12px">Sincronización Offline-First</div>
+              <div
+                style="background:#252526;border:1px solid var(--border-light);border-radius:4px;padding:14px;text-align:center">
+                <strong id="sync-msg" style="color:var(--accent);font-size:13px">Sistema listo.</strong>
+              </div>
+              <div style="margin-top:14px">
+                <div class="card-title" style="font-size:13px;margin-bottom:10px">Stock Crítico</div>
+                <div id="low-stock-list" style="font-size:12px;line-height:2;color:var(--text-dim)">Sin alertas.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════ VENTAS ══════════════ -->
+        <div id="p-Ventas" class="panel">
+          <div style="display:flex;flex-direction:column;gap:14px;height:calc(100vh - 150px)">
+
+            <!-- SCANNER BAR (Full width at top) -->
+            <div class="scanner-bar"
+              style="flex-shrink:0;padding:10px 14px;background:#1a1a1a;border-radius:6px;border:1px solid var(--border)">
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;width:100%">
+                <span style="font-size:16px">📷</span>
+                <label style="font-size:11px;font-weight:bold;color:var(--text-dim);white-space:nowrap;margin:0">EAN-13
+                  / SKU:</label>
+                <input id="ean-input" class="ean-input scan-blink"
+                  placeholder="Escanea o escribe el código de barras..." maxlength="20"
+                  onkeydown="if(event.key==='Enter'){addByEan();event.preventDefault();}"
+                  oninput="document.getElementById('ean-err').textContent=''"
+                  style="height:36px;font-size:14px;flex:1;min-width:200px">
+                <button onclick="addByEan()" class="btn" style="height:36px;flex-shrink:0">Agregar</button>
+                <button onclick="simulateScan()" class="btn btn-secondary" title="Simular escáner"
+                  style="height:36px;flex-shrink:0">📡 Escanear</button>
+              </div>
+              <div
+                style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:6px;font-size:10px">
+                <span id="ean-err" class="scanner-error" style="color:var(--danger);font-weight:bold"></span>
+                <span class="scanner-hint" style="color:var(--text-dim)">Soporta lectores USB HID (presiona Enter para
+                  agregar).</span>
+              </div>
+            </div>
+
+            <!-- LOWER COLUMNS -->
+            <div style="display:flex;flex-wrap:wrap;gap:14px;flex:1;min-height:0">
+
+              <!-- COLUMNA IZQUIERDA: Catálogo -->
+              <div class="card"
+                style="display:flex;flex-direction:column;min-height:200px;flex:0 0 300px;overflow:hidden;padding:12px">
+                <div
+                  style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-shrink:0">
+                  <div class="card-title" style="margin:0;font-size:13px">🏷️ Catálogo Rápido</div>
+                  <span style="font-size:9px;color:var(--text-dim)">Clic → agregar</span>
+                </div>
+                <div id="catalog-grid" class="catalog-grid"
+                  style="overflow-y:auto;flex:1;margin-top:4px;grid-template-columns:1fr;display:grid;gap:6px"></div>
+              </div>
+
+              <!-- COLUMNA DERECHA: Checkout Unificado -->
+              <div
+                style="display:flex;flex-direction:column;flex:1;min-width:320px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;min-height:400px">
+
+                <!-- CABECERA: cliente + contador -->
+                <div
+                  style="padding:12px 16px;border-bottom:1px solid var(--border);background:#1e1e1e;flex-shrink:0;display:flex;gap:12px;align-items:flex-start">
+                  <div style="flex:1">
+                    <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:5px">👤 CLIENTE
+                    </div>
+                    <select id="sale-client" class="form-control" onchange="updateClientInfo()"
+                      style="font-size:12px;height:32px">
+                      <option value="">— Consumidor Final —</option>
+                    </select>
+                    <div id="client-info" class="client-info" style="margin-top:5px;min-height:24px;font-size:11px">
+                    </div>
+                  </div>
+                  <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div
+                      style="background:#252526;border:1px solid var(--border);border-radius:6px;padding:6px 14px;text-align:center">
+                      <div style="font-size:9px;color:var(--text-dim);font-weight:bold">ARTÍCULOS</div>
+                      <div id="cart-count" style="font-size:24px;font-weight:900;color:var(--accent);line-height:1.1">0
+                      </div>
+                    </div>
+                    <button onclick="clearCart()" class="btn btn-sm btn-secondary"
+                      style="color:var(--danger);width:100%">🗑 Vaciar</button>
+                  </div>
+                </div>
+
+                <!-- CUERPO: tabla del carrito -->
+                <div class="cart-table-wrap" style="flex:1;overflow-y:auto;min-height:0">
+                  <div id="cart-empty" class="cart-empty">
+                    <div class="icon">🛒</div>
+                    <div style="font-size:14px;font-weight:bold">El carrito está vacío</div>
+                    <div style="font-size:11px;margin-top:6px;color:var(--text-dim)">Escanea un EAN-13 o selecciona del
+                      catálogo</div>
+                  </div>
+                  <table class="cart-table" id="cart-tbl" style="display:none">
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th>P.Unit</th>
+                        <th>Cant.</th>
+                        <th>Desc.%</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="cart-body"></tbody>
+                  </table>
+                </div>
+
+                <!-- PIE: totales + pago + botón finalizar -->
+                <div style="flex-shrink:0;border-top:2px solid var(--border);padding:14px 16px;background:#181818">
+
+                  <!-- Totales compactos -->
+                  <div class="totals-bar">
+                    <div class="totals-bar-cell">
+                      <div class="lbl">SUBTOTAL</div>
+                      <div class="val" id="s-sub">$0.00</div>
+                    </div>
+                    <div class="totals-bar-cell">
+                      <div class="lbl">DESCUENTOS</div>
+                      <div class="val" id="s-disc" style="color:var(--warning)">-$0.00</div>
+                    </div>
+                    <div class="totals-bar-cell">
+                      <div class="lbl">IVA (19%)</div>
+                      <div class="val" id="s-iva">$0.00</div>
+                    </div>
+                    <div class="totals-bar-cell highlight">
+                      <div class="lbl">TOTAL</div>
+                      <div class="val" id="s-total">$0.00</div>
+                    </div>
+                  </div>
+
+                  <!-- Pago + efectivo en fila -->
+                  <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap">
+                    <div style="flex:1">
+                      <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:5px">FORMA DE PAGO
+                      </div>
+                      <div class="pay-method" style="margin:0">
+                        <button class="pay-btn sel" onclick="selectPay(this,'Efectivo')">💵 Efectivo</button>
+                        <button class="pay-btn" onclick="selectPay(this,'Tarjeta')">💳 Tarjeta</button>
+                        <button class="pay-btn" onclick="selectPay(this,'Transferencia')">🏦 Transfer.</button>
+                        <button class="pay-btn" onclick="selectPay(this,'Crédito')">📋 Crédito</button>
+                      </div>
+                    </div>
+                    <div id="pay-cash-row" style="flex:0 0 170px">
+                      <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:5px">EFECTIVO
+                        RECIBIDO</div>
+                      <input id="pay-received" type="number" class="form-control" style="height:32px;font-size:13px"
+                        placeholder="0" oninput="calcChange()">
+                      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:13px">
+                        <span style="color:var(--text-dim)">Cambio:</span>
+                        <strong id="pay-change" style="color:var(--success)">$0.00</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Observaciones -->
+                  <div style="margin-bottom:10px">
+                    <textarea id="sale-obs" class="form-control" style="height:32px;font-size:12px;resize:none"
+                      placeholder="Observaciones internas (opcional)…"></textarea>
+                  </div>
+
+                  <!-- ✅ BOTÓN FINALIZAR VENTA -->
+                  <button id="btn-finalize" class="btn-finalize-xl" onclick="finalizeSale()" disabled>
+                    <span style="font-size:22px">✅</span>
+                    <span>FINALIZAR VENTA</span>
+                  </button>
+                  <button onclick="clearCart(true)" class="btn btn-secondary"
+                    style="width:100%;margin-top:8px;height:32px;font-size:12px">❌ Cancelar Venta</button>
+
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ══════════════ HISTORIAL VENTAS ══════════════ -->
+        <div id="p-HistorialVentas" class="panel">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div>
+                <div class="card-title">Historial Detallado de Ventas</div>
+                <div class="card-sub">Registro completo de transacciones · Offline-First</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="hist-search" class="form-control" style="width:200px;height:30px;font-size:12px"
+                  placeholder="🔍 Buscar cliente / #..." oninput="renderHistory()">
+                <button onclick="exportCSV()" class="btn btn-sm btn-secondary">📥 Exportar CSV</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#Venta</th>
+                  <th>Fecha / Hora</th>
+                  <th>Cliente</th>
+                  <th>Items</th>
+                  <th>Subtotal</th>
+                  <th>IVA</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Vendedor</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="t-history"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── INVENTARIO ── -->
+        <div id="p-Inventario" class="panel">
+          <div class="card">
+            <div style="margin-bottom:14px">
+              <div class="card-title">Control de Inventario Multibodega</div>
+              <div class="card-sub">Offline-First · Descuento automático al registrar ventas</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>EAN-13</th>
+                  <th>SKU</th>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Costo</th>
+                  <th>Precio</th>
+                  <th>Bodega Ppal</th>
+                  <th>Bodega Sec</th>
+                  <th>Total</th>
+                  <th>Mínimo</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="t-inv"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── PRODUCTOS CRUD ── -->
+        <div id="p-Productos" class="panel">
+          <div class="crud-layout">
+            <!-- TABLA -->
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div>
+                  <div class="card-title">Catálogo de Productos</div>
+                  <div class="card-sub">Selecciona un producto para editar · EAN-13 + SKU</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <input id="prod-search" class="form-control" style="width:200px;height:30px;font-size:12px"
+                    placeholder="🔍 Buscar nombre / EAN / SKU..." oninput="renderProductos()">
+                  <button onclick="clearProductoForm()" class="btn btn-sm btn-secondary">+ Nuevo</button>
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>EAN-13</th>
+                    <th>SKU</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Costo</th>
+                    <th>Precio Venta</th>
+                    <th>Stock Total</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="t-prod"></tbody>
+              </table>
+            </div>
+
+            <!-- FORMULARIO -->
+            <div class="form-card">
+              <div style="margin-bottom:14px">
+                <div id="prod-form-title" class="card-title">Nuevo Producto</div>
+                <div class="card-sub">Ficha técnica y de inventario</div>
+              </div>
+              <div class="form-scroll">
+                <input type="hidden" id="prod-id">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="form-group">
+                    <label>EAN-13</label>
+                    <input id="prod-ean" class="form-control" placeholder="7702011000000" maxlength="13">
+                  </div>
+                  <div class="form-group">
+                    <label>SKU</label>
+                    <input id="prod-sku" class="form-control" placeholder="PROD007">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Nombre del Producto</label>
+                  <input id="prod-name" class="form-control" placeholder="Ej. Laptop Core i9 32GB">
+                </div>
+                <div class="form-group">
+                  <label>Categoría</label>
+                  <select id="prod-cat" class="form-control">
+                    <option>Tecnología</option>
+                    <option>Mobiliario</option>
+                    <option>Papelería</option>
+                    <option>Electrodomésticos</option>
+                    <option>Ropa</option>
+                    <option>Alimentos</option>
+                    <option>Herramientas</option>
+                    <option>Otro</option>
+                  </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="form-group">
+                    <label>Costo ($)</label>
+                    <input id="prod-cost" class="form-control" type="number" min="0" step="any" placeholder="0"
+                      oninput="updateProductoMargin()">
+                  </div>
+                  <div class="form-group">
+                    <label>Precio Venta ($)</label>
+                    <input id="prod-price" class="form-control" type="number" min="0" step="any" placeholder="0"
+                      oninput="updateProductoMargin()">
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="form-group">
+                    <label>Stock Bodega Principal</label>
+                    <input id="prod-wh-main" class="form-control" type="number" min="0" placeholder="0">
+                  </div>
+                  <div class="form-group">
+                    <label>Stock Bodega Secundaria</label>
+                    <input id="prod-wh-sec" class="form-control" type="number" min="0" placeholder="0">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Stock Mínimo (Alerta)</label>
+                  <input id="prod-min" class="form-control" type="number" min="0" placeholder="5">
+                </div>
+                <div id="prod-margin-box"
+                  style="background:#1b2b1b;border:1px solid #2d4a2d;border-radius:4px;padding:10px;margin-top:6px;font-size:11px;display:none">
+                  <span style="color:var(--text-dim)">Margen bruto: </span>
+                  <strong id="prod-margin-val" style="color:var(--success)">—</strong>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button onclick="clearProductoForm()" class="btn btn-sm btn-secondary">Limpiar</button>
+                <button id="btn-del-prod" onclick="toggleStatusProducto()" class="btn btn-sm btn-danger"
+                  style="display:none">🚫 Desactivar</button>
+                <div class="spacer"></div>
+                <button onclick="saveProducto()" class="btn">💾 Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CRM ── -->
+        <div id="p-CRM" class="panel">
+          <div class="crud-layout">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div>
+                  <div class="card-title">Pipeline CRM · Gestión de Clientes</div>
+                  <div class="card-sub">Selecciona un cliente para editar o desactivar</div>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <label
+                    style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim);cursor:pointer">
+                    <input type="checkbox" id="crm-show-inactive" onchange="renderCRM()"> Ver inactivos
+                  </label>
+                  <button onclick="clearCRMForm()" class="btn btn-sm btn-secondary">+ Nuevo</button>
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>NIT</th>
+                    <th>Pipeline</th>
+                    <th>Cartera</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="t-crm"></tbody>
+              </table>
+            </div>
+            <div class="form-card">
+              <div style="margin-bottom:14px">
+                <div id="crm-form-title" class="card-title">Nuevo Cliente</div>
+                <div class="card-sub">Información comercial</div>
+              </div>
+              <div class="form-scroll">
+                <input type="hidden" id="c-id">
+                <div class="form-group"><label>Razón Social</label><input id="c-name" class="form-control"
+                    placeholder="ACME Corp S.A.S"></div>
+                <div class="form-group"><label>NIT / Identificación</label><input id="c-taxid" class="form-control"
+                    placeholder="900.123.456-1"></div>
+                <div class="form-group"><label>Correo</label><input id="c-email" class="form-control" type="email">
+                </div>
+                <div class="form-group"><label>Teléfono</label><input id="c-phone" class="form-control"></div>
+                <div class="form-group"><label>Etapa Pipeline</label>
+                  <select id="c-stage" class="form-control">
+                    <option>Prospecto</option>
+                    <option>Calificado</option>
+                    <option>Propuesta</option>
+                    <option>Negociación</option>
+                    <option>Cerrado</option>
+                  </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="form-group"><label>Límite Crédito ($)</label><input id="c-credit" class="form-control"
+                      type="number" placeholder="5000"></div>
+                  <div class="form-group"><label>Saldo Cartera ($)</label><input id="c-balance" class="form-control"
+                      type="number" placeholder="0"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <input type="checkbox" id="c-active" checked style="width:15px;height:15px;cursor:pointer">
+                  <label for="c-active" style="font-size:12px;cursor:pointer">Cliente Activo</label>
+                </div>
+                <div id="c-inactive-warn"
+                  style="display:none;margin-top:10px;background:#200a0b;border:1px solid var(--danger);border-radius:4px;padding:10px;font-size:11px;color:#ff8a8a;">
+                  ⚠️ Al desactivar este cliente quedará oculto del pipeline y no podrá asociarse a nuevas ventas.
+                </div>
+              </div>
+              <div class="form-actions">
+                <button onclick="clearCRMForm()" class="btn btn-sm btn-secondary">Limpiar</button>
+                <button id="btn-deactivate" onclick="toggleCustomerActive()" class="btn btn-sm btn-warning"
+                  style="display:none">⏸ Desactivar</button>
+                <div class="spacer"></div>
+                <button onclick="saveCustomer()" class="btn">💾 Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── REPORTES ── -->
+        <div id="p-Reportes" class="panel">
+          <div style="display:flex;flex-direction:column;gap:18px">
+
+            <!-- KPI bar -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+              <div class="kpi" style="border-left:3px solid var(--danger)">
+                <h5>STOCK CR&Iacute;TICO</h5>
+                <h2 id="rep-kpi-critico" style="color:var(--danger)">0</h2>
+                <p>productos por debajo del m&iacute;nimo</p>
+              </div>
+              <div class="kpi" style="border-left:3px solid var(--success)">
+                <h5>M&Aacute;S VENDIDO</h5>
+                <h2 id="rep-kpi-top" style="color:#2ecc71;font-size:14px;margin-top:8px">—</h2>
+                <p id="rep-kpi-top-qty"></p>
+              </div>
+              <div class="kpi" style="border-left:3px solid var(--warning)">
+                <h5>SIN ROTACI&Oacute;N</h5>
+                <h2 id="rep-kpi-slow" style="color:var(--warning)">0</h2>
+                <p>productos sin ventas registradas</p>
+              </div>
+              <div class="kpi" style="border-left:3px solid var(--accent)">
+                <h5>PRODUCTOS ACTIVOS</h5>
+                <h2 id="rep-kpi-total" style="color:var(--accent)">0</h2>
+                <p>en cat&aacute;logo</p>
+              </div>
+            </div>
+
+            <!-- Tab selector -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <button id="rep-tab-critico" class="btn" onclick="showRepTab('critico')" style="height:34px">🔴 Stock
+                Crítico</button>
+              <button id="rep-tab-top" class="btn btn-secondary" onclick="showRepTab('top')" style="height:34px">🟢 Más
+                Vendidos</button>
+              <button id="rep-tab-slow" class="btn btn-secondary" onclick="showRepTab('slow')" style="height:34px">🟡
+                Sin Rotación</button>
+              <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+                <label style="font-size:11px;color:var(--text-dim)">Últimos:</label>
+                <select id="rep-days" class="form-control" style="width:110px;height:30px;font-size:12px"
+                  onchange="renderReportes()">
+                  <option value="7">7 días</option>
+                  <option value="30" selected>30 días</option>
+                  <option value="90">90 días</option>
+                  <option value="365">1 año</option>
+                  <option value="0">Siempre</option>
+                </select>
+                <button onclick="exportReporte()" class="btn btn-sm btn-secondary">📥 Exportar CSV</button>
+              </div>
+            </div>
+
+            <!-- ── STOCK CRÍTICO ── -->
+            <div id="rep-sec-critico" class="card" style="padding:0;overflow:hidden">
+              <div
+                style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div class="card-title" style="margin:0;color:var(--danger)">🔴 Productos con Stock Crítico</div>
+                  <div class="card-sub" style="margin:4px 0 0">Artículos por debajo o en el límite del stock mínimo
+                    configurado</div>
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>SKU</th>
+                    <th>Categoría</th>
+                    <th>Stock Total</th>
+                    <th>Mín. Config.</th>
+                    <th>Déficit</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="t-rep-critico"></tbody>
+              </table>
+              <div id="rep-critico-empty"
+                style="display:none;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+                ✅ Todos los productos tienen stock suficiente.
+              </div>
+            </div>
+
+            <!-- ── MÁS VENDIDOS ── -->
+            <div id="rep-sec-top" class="card" style="padding:0;overflow:hidden;display:none">
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border)">
+                <div class="card-title" style="margin:0;color:#2ecc71">🟢 Productos Más Vendidos</div>
+                <div class="card-sub" style="margin:4px 0 0">Ordenados por unidades vendidas en el período seleccionado
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Producto</th>
+                    <th>SKU</th>
+                    <th>Categoría</th>
+                    <th>Unidades Vendidas</th>
+                    <th>Ingresos</th>
+                    <th>% del Total</th>
+                  </tr>
+                </thead>
+                <tbody id="t-rep-top"></tbody>
+              </table>
+              <div id="rep-top-empty"
+                style="display:none;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+                📭 No hay ventas registradas en este período.
+              </div>
+            </div>
+
+            <!-- ── SIN ROTACIÓN ── -->
+            <div id="rep-sec-slow" class="card" style="padding:0;overflow:hidden;display:none">
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border)">
+                <div class="card-title" style="margin:0;color:var(--warning)">🟡 Productos sin Rotación</div>
+                <div class="card-sub" style="margin:4px 0 0">Artículos que no registran ventas en el período —
+                  candidatos a reordenamiento o liquidación</div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>SKU</th>
+                    <th>Categoría</th>
+                    <th>Stock Actual</th>
+                    <th>Precio Venta</th>
+                    <th>Valor Inmovilizado</th>
+                    <th>Días sin Venta</th>
+                  </tr>
+                </thead>
+                <tbody id="t-rep-slow"></tbody>
+              </table>
+              <div id="rep-slow-empty"
+                style="display:none;padding:32px;text-align:center;color:var(--text-dim);font-size:13px">
+                🎉 Todos los productos han tenido movimiento en este período.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── AUDITORÍA ── -->
+        <div id="p-Auditoria" class="panel">
+          <div id="audit-denied" class="denied-box" style="display:none">
+            <h3>🔒 ACCESO DENEGADO</h3>
+            <p>Solo los Administradores pueden ver la bitácora de seguridad.</p>
+            <p style="color:var(--text-dim);font-size:11px;margin-top:8px">Este intento ha sido registrado.</p>
+          </div>
+          <div id="audit-cont" class="card">
+            <div class="card-title" style="margin-bottom:14px">Bitácora de Auditoría de Accesos</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha / Hora</th>
+                  <th>Evento</th>
+                  <th>Usuario</th>
+                  <th>ID</th>
+                  <th>Terminal</th>
+                  <th>Descripción</th>
+                </tr>
+              </thead>
+              <tbody id="t-audit"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── USUARIOS ── -->
+        <div id="p-Usuarios" class="panel">
+          <div id="usr-denied" class="denied-box" style="display:none">
+            <h3>🔒 ACCESO DENEGADO</h3>
+            <p>Se requiere rol de Administrador para gestionar usuarios.</p>
+          </div>
+          <div id="usr-cont" class="crud-layout">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div>
+                  <div class="card-title">Usuarios del Sistema</div>
+                  <div class="card-sub">Selecciona para editar</div>
+                </div>
+                <button onclick="clearUserForm()" class="btn btn-sm btn-secondary">+ Nuevo</button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="t-usr"></tbody>
+              </table>
+            </div>
+            <div class="form-card">
+              <div style="margin-bottom:14px">
+                <div id="usr-form-title" class="card-title">Crear Usuario</div>
+                <div class="card-sub">Credenciales y rol empresarial</div>
+              </div>
+              <div class="form-scroll">
+                <input type="hidden" id="u-id">
+                <div class="form-group"><label>Usuario</label><input id="u-user" class="form-control"></div>
+                <div class="form-group"><label>Contraseña</label><input id="u-pass" type="password" class="form-control"
+                    placeholder="Vacío = conservar actual"></div>
+                <div class="form-group"><label>Nombre Completo</label><input id="u-name" class="form-control"></div>
+                <div class="form-group"><label>Correo</label><input id="u-email" class="form-control" type="email">
+                </div>
+                <div class="form-group"><label>Rol</label>
+                  <select id="u-role" class="form-control" onchange="updatePermBox()">
+                    <option>Administrador</option>
+                    <option>Vendedor</option>
+                    <option>Bodega</option>
+                  </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <input type="checkbox" id="u-active" checked style="width:15px;height:15px">
+                  <label for="u-active" style="font-size:12px;cursor:pointer">Usuario Activo</label>
+                </div>
+                <div class="perm-box">
+                  <h6>Permisos del Rol:</h6>
+                  <div id="perm-admin">• USER_CRUD • VIEW_AUDIT<br>• CRM_WRITE • STOCK_WRITE<br>• SALES_WRITE •
+                    PURCHASES_WRITE</div>
+                  <div id="perm-vend" style="display:none;color:var(--text-dim)">• CRM_READ &amp; WRITE • STOCK_READ •
+                    SALES_WRITE<br><span style="color:var(--danger)">❌ Sin acceso a Usuarios ni Auditoría</span></div>
+                  <div id="perm-bod" style="display:none;color:var(--text-dim)">• STOCK_READ &amp; WRITE •
+                    PURCHASES_WRITE<br><span style="color:var(--danger)">❌ Sin Facturación ni CRM</span></div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button onclick="clearUserForm()" class="btn btn-sm btn-secondary">Limpiar</button>
+                <button id="btn-del-usr" onclick="deleteUser()" class="btn btn-sm btn-danger" style="display:none">🗑
+                  Eliminar</button>
+                <div class="spacer"></div>
+                <button onclick="saveUser()" class="btn">💾 Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PROVEEDORES ── -->
+        <div id="p-Proveedores" class="panel">
+          <div class="crud-layout">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div>
+                  <div class="card-title">Directorio de Proveedores</div>
+                  <div class="card-sub">Selecciona un proveedor para editar o desactivar</div>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <label
+                    style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim);cursor:pointer">
+                    <input type="checkbox" id="prov-show-inactive" onchange="renderProveedores()"> Ver inactivos
+                  </label>
+                  <button onclick="clearProveedorForm()" class="btn btn-sm btn-secondary">+ Nuevo</button>
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Proveedor</th>
+                    <th>NIT</th>
+                    <th>Contacto</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="t-prov"></tbody>
+              </table>
+            </div>
+            <div class="form-card">
+              <div style="margin-bottom:14px">
+                <div id="prov-form-title" class="card-title">Nuevo Proveedor</div>
+                <div class="card-sub">Información comercial y de contacto</div>
+              </div>
+              <div class="form-scroll">
+                <input type="hidden" id="pv-id">
+                <div class="form-group"><label>Razón Social / Nombre</label><input id="pv-name" class="form-control"
+                    placeholder="Proveedor de Tecnología S.A."></div>
+                <div class="form-group"><label>NIT / Identificación Fiscal</label><input id="pv-taxid"
+                    class="form-control" placeholder="900.111.222-3"></div>
+                <div class="form-group"><label>Correo</label><input id="pv-email" class="form-control" type="email"
+                    placeholder="ventas@proveedor.com"></div>
+                <div class="form-group"><label>Teléfono</label><input id="pv-phone" class="form-control"
+                    placeholder="+57 300 123 4567"></div>
+                <div class="form-group"><label>Dirección</label><input id="pv-address" class="form-control"
+                    placeholder="Calle 123 #45-67"></div>
+                <div class="form-group"><label>Persona de Contacto</label><input id="pv-contact" class="form-control"
+                    placeholder="Carlos Gómez"></div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                  <input type="checkbox" id="pv-active" checked style="width:15px;height:15px;cursor:pointer">
+                  <label for="pv-active" style="font-size:12px;cursor:pointer">Proveedor Activo</label>
+                </div>
+                <div id="pv-inactive-warn"
+                  style="display:none;margin-top:10px;background:#200a0b;border:1px solid var(--danger);border-radius:4px;padding:10px;font-size:11px;color:#ff8a8a;">
+                  ⚠️ Al desactivar este proveedor no podrá asociarse a nuevas entradas/compras de inventario.
+                </div>
+              </div>
+              <div class="form-actions">
+                <button onclick="clearProveedorForm()" class="btn btn-sm btn-secondary">Limpiar</button>
+                <button id="btn-deactivate-prov" onclick="toggleProveedorActive()" class="btn btn-sm btn-warning"
+                  style="display:none">⏸ Desactivar</button>
+                <div class="spacer"></div>
+                <button onclick="saveProveedor()" class="btn">💾 Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── COMPRAS (ENTRADAS DE INVENTARIO) ── -->
+        <div id="p-Compras" class="panel">
+          <div style="display:flex;flex-direction:column;gap:14px;height:calc(100vh - 150px)">
+
+            <!-- SCANNER BAR (Full width at top) -->
+            <div class="scanner-bar"
+              style="flex-shrink:0;padding:10px 14px;background:#1a1a1a;border-radius:6px;border:1px solid var(--border)">
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;width:100%">
+                <span style="font-size:16px">📷</span>
+                <label style="font-size:11px;font-weight:bold;color:var(--text-dim);white-space:nowrap;margin:0">EAN-13
+                  / SKU:</label>
+                <input id="purchase-ean-input" class="ean-input scan-blink"
+                  placeholder="Escanea o escribe el código para la compra..." maxlength="20"
+                  onkeydown="if(event.key==='Enter'){addByPurchaseEan();event.preventDefault();}"
+                  oninput="document.getElementById('purchase-ean-err').textContent=''"
+                  style="height:36px;font-size:14px;flex:1;min-width:200px">
+                <button onclick="addByPurchaseEan()" class="btn" style="height:36px;flex-shrink:0">Agregar</button>
+              </div>
+              <div
+                style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:6px;font-size:10px">
+                <span id="purchase-ean-err" class="scanner-error" style="color:var(--danger);font-weight:bold"></span>
+                <span class="scanner-hint" style="color:var(--text-dim)">Presiona Enter para agregar. Soporta lectores
+                  de código de barras.</span>
+              </div>
+            </div>
+
+            <!-- LOWER COLUMNS -->
+            <div style="display:flex;flex-wrap:wrap;gap:14px;flex:1;min-height:0">
+
+              <!-- COLUMNA IZQUIERDA: Catálogo -->
+              <div class="card"
+                style="display:flex;flex-direction:column;min-height:200px;flex:0 0 300px;overflow:hidden;padding:12px">
+                <div
+                  style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-shrink:0">
+                  <div class="card-title" style="margin:0;font-size:13px">📦 Catálogo Rápido</div>
+                  <span style="font-size:9px;color:var(--text-dim)">Clic → agregar</span>
+                </div>
+                <div id="purchase-catalog-grid" class="catalog-grid"
+                  style="overflow-y:auto;flex:1;margin-top:4px;grid-template-columns:1fr;display:grid;gap:6px"></div>
+              </div>
+
+              <!-- COLUMNA DERECHA: Recepción Unificada -->
+              <div
+                style="display:flex;flex-direction:column;flex:1;min-width:320px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;min-height:400px">
+
+                <!-- CABECERA: proveedor + bodega + contador -->
+                <div
+                  style="padding:12px 16px;border-bottom:1px solid var(--border);background:#1e1e1e;flex-shrink:0;display:flex;gap:12px;align-items:flex-start">
+                  <div style="flex:1">
+                    <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:5px">🤝 PROVEEDOR
+                    </div>
+                    <select id="purchase-supplier" class="form-control" onchange="updatePurchaseSupplierInfo()"
+                      style="font-size:12px;height:32px">
+                      <option value="">— Seleccionar Proveedor —</option>
+                    </select>
+                    <div id="purchase-supplier-info" class="client-info"
+                      style="margin-top:5px;min-height:16px;font-size:11px"></div>
+                  </div>
+                  <div style="flex:1">
+                    <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:5px">📦 BODEGA
+                      DESTINO</div>
+                    <select id="purchase-warehouse" class="form-control" style="font-size:12px;height:32px">
+                      <option value="Main">Bodega Principal</option>
+                      <option value="Secondary">Bodega Secundaria</option>
+                    </select>
+                  </div>
+                  <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div
+                      style="background:#252526;border:1px solid var(--border);border-radius:6px;padding:6px 14px;text-align:center">
+                      <div style="font-size:9px;color:var(--text-dim);font-weight:bold">ARTÍCULOS</div>
+                      <div id="purchase-cart-count"
+                        style="font-size:24px;font-weight:900;color:var(--accent);line-height:1.1">0</div>
+                    </div>
+                    <button onclick="clearPurchaseCart()" class="btn btn-sm btn-secondary"
+                      style="color:var(--danger);width:100%">🗑 Vaciar</button>
+                  </div>
+                </div>
+
+                <!-- CUERPO: tabla del carrito -->
+                <div class="cart-table-wrap" style="flex:1;overflow-y:auto;min-height:0">
+                  <div id="purchase-cart-empty" class="cart-empty">
+                    <div class="icon">📥</div>
+                    <div style="font-size:14px;font-weight:bold">No hay artículos en la entrada</div>
+                    <div style="font-size:11px;margin-top:6px;color:var(--text-dim)">Ingresa un código o usa el catálogo
+                      rápido</div>
+                  </div>
+                  <table class="cart-table" id="purchase-cart-tbl" style="display:none">
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th>EAN</th>
+                        <th>Costo Unit. ($)</th>
+                        <th>Cant.</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="purchase-cart-body"></tbody>
+                  </table>
+                </div>
+
+                <!-- PIE: total + obs + botón finalizar -->
+                <div style="flex-shrink:0;border-top:2px solid var(--border);padding:14px 16px;background:#181818">
+
+                  <div style="display:flex;gap:16px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                      <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:5px">OBSERVACIONES
+                        / FACTURA</div>
+                      <textarea id="purchase-obs" class="form-control" style="height:38px;font-size:12px;resize:none"
+                        placeholder="Ej. Factura N° 1234..."></textarea>
+                    </div>
+                    <div
+                      style="background:#252526;border:1px solid var(--border);border-radius:6px;padding:8px 16px;text-align:right;min-width:150px">
+                      <div style="font-size:10px;font-weight:bold;color:var(--text-dim);margin-bottom:2px">TOTAL COMPRA
+                      </div>
+                      <div id="p-total" style="font-size:20px;font-weight:900;color:var(--accent)">$0.00</div>
+                    </div>
+                  </div>
+
+                  <button id="btn-finalize-purchase" class="btn-finalize-xl"
+                    style="background:linear-gradient(135deg,#0078d4,#1086e4);box-shadow:0 0 15px rgba(0,120,212,0.4)"
+                    onclick="finalizePurchase()" disabled>
+                    <span style="font-size:22px">📥</span>
+                    <span>RECIBIR INVENTARIO</span>
+                  </button>
+                  <button onclick="clearPurchaseCart(true)" class="btn btn-secondary"
+                    style="width:100%;margin-top:8px;height:32px;font-size:12px">❌ Cancelar Compra</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── HISTORIAL DE COMPRAS ── -->
+        <div id="p-HistorialCompras" class="panel">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <div>
+                <div class="card-title">Historial de Compras / Entradas de Inventario</div>
+                <div class="card-sub">Registro completo de mercancía recibida · Offline-First</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="purch-search" class="form-control" style="width:200px;height:30px;font-size:12px"
+                  placeholder="🔍 Buscar proveedor / #..." oninput="renderHistorialCompras()">
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#Compra</th>
+                  <th>Fecha / Hora</th>
+                  <th>Proveedor</th>
+                  <th>Bodega Destino</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Registrado Por</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="t-purch-history"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /workspace -->
+
+      <!-- ══════════════ COMPROBANTE DE COMPRA MODAL ══════════════ -->
+      <div id="purchase-ticket-overlay"
+        style="position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:3000;">
+        <div class="ticket-box">
+          <div class="ticket-header" style="background:#6b2fa0;">
+            <h2>★ STOCKPOINT ★</h2>
+            <p>Comprobante de Entrada de Inventario</p>
+          </div>
+          <div class="ticket-body">
+            <div class="ticket-row"><span>NIT:</span><span>900.111.222-3</span></div>
+            <hr class="ticket-sep">
+            <div class="ticket-row bold"><span>ENTRADA #</span><span id="p-tk-num">—</span></div>
+            <div class="ticket-row"><span>Fecha:</span><span id="p-tk-date">—</span></div>
+            <div class="ticket-row"><span>Recibido Por:</span><span id="p-tk-user">—</span></div>
+            <div class="ticket-row"><span>Proveedor:</span><span id="p-tk-supplier">—</span></div>
+            <div class="ticket-row"><span>Bodega:</span><span id="p-tk-wh">—</span></div>
+            <hr class="ticket-sep">
+            <div id="p-tk-items" class="ticket-items"></div>
+            <hr class="ticket-sep">
+            <div class="ticket-row total"><span>TOTAL RECIBIDO:</span><span id="p-tk-total">—</span></div>
+            <div id="p-tk-obs-row" style="margin-top:10px;font-size:10px;color:#555;">
+              <strong>Obs:</strong> <span id="p-tk-obs">—</span>
+            </div>
+          </div>
+          <div class="ticket-footer">
+            Comprobante de recepción de mercancía<br>
+            Generado por StockPoint v2026.1
+          </div>
+          <div class="ticket-actions">
+            <button onclick="printPurchaseTicket()" class="btn btn-purple" style="flex:1">🖨️ Imprimir</button>
+            <button onclick="document.getElementById('purchase-ticket-overlay').style.display='none'"
+              class="btn btn-secondary" style="flex:1">Cerrar</button>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <span>SQLite local activo · Offline-First · <span id="f-user">—</span></span>
+        <span>StockPoint v2026.1 · .NET 8.0 WPF · EAN-13 Ready</span>
+      </footer>
+    </main>
+  </div>
+
+  <!-- ══════════════ TICKET MODAL ══════════════ -->
+  <div id="ticket-overlay">
+    <div class="ticket-box">
+      <div class="ticket-header">
+        <h2>★ STOCKPOINT ★</h2>
+        <p>Sistema de Gestión Empresarial</p>
+      </div>
+      <div class="ticket-body">
+        <div class="ticket-row"><span>Dirección:</span><span>Calle 123 #45-67</span></div>
+        <div class="ticket-row"><span>Tel:</span><span>+57 300 000 0000</span></div>
+        <div class="ticket-row"><span>NIT:</span><span>900.111.222-3</span></div>
+        <hr class="ticket-sep">
+        <div class="ticket-row bold"><span>FACTURA #</span><span id="tk-num">—</span></div>
+        <div class="ticket-row"><span>Fecha:</span><span id="tk-date">—</span></div>
+        <div class="ticket-row"><span>Cajero:</span><span id="tk-cashier">—</span></div>
+        <div class="ticket-row"><span>Cliente:</span><span id="tk-client">Consumidor Final</span></div>
+        <div class="ticket-row"><span>Pago:</span><span id="tk-pay">—</span></div>
+        <hr class="ticket-sep">
+        <div id="tk-items" class="ticket-items"></div>
+        <hr class="ticket-sep">
+        <div class="ticket-row"><span>Subtotal:</span><span id="tk-sub">—</span></div>
+        <div class="ticket-row"><span>Descuentos:</span><span id="tk-disc">—</span></div>
+        <div class="ticket-row"><span>IVA (19%):</span><span id="tk-iva">—</span></div>
+        <div class="ticket-row total"><span>TOTAL:</span><span id="tk-total">—</span></div>
+        <div id="tk-change-row" class="ticket-row" style="color:var(--success)"><span>Cambio:</span><span
+            id="tk-change">—</span></div>
+      </div>
+      <div class="ticket-footer">
+        ¡Gracias por su compra! • Conserve su ticket<br>
+        Generado por StockPoint v2026.1
+      </div>
+      <div class="ticket-actions">
+        <button onclick="printTicket()" class="btn btn-success" style="flex:1">🖨️ Imprimir</button>
+        <button onclick="document.getElementById('ticket-overlay').style.display='none'" class="btn btn-secondary"
+          style="flex:1">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CONFLICT OVERLAY ══════════════ -->
+  <div id="conflict-overlay">
+    <div class="conflict-box">
+      <div>
+        <h4>⚠ CONSOLA DE RESOLUCIÓN DE CONFLICTOS</h4>
+        <p style="font-size:12px;color:var(--text-dim);margin-top:4px">Motor offline-first detectó cambios concurrentes
+          en Firebase Firestore.</p>
+      </div>
+      <div class="conflict-alert">
+        <strong>Conflicto de concurrencia:</strong> La versión en la nube tiene marca de tiempo posterior a tu cambio
+        local. Elige qué versión conservar.
+      </div>
+      <div class="compare">
+        <div class="compare-side local">
+          <h6>VERSIÓN LOCAL (Este equipo)</h6>
+          <div id="c-local" class="json-view"></div>
+        </div>
+        <div class="compare-side remote">
+          <h6>VERSIÓN NUBE (Firebase Firestore)</h6>
+          <div id="c-remote" class="json-view"></div>
+        </div>
+      </div>
+      <div class="conflict-foot">
+        <span style="font-size:11px;color:var(--text-dim)">Tabla: <strong>Users</strong> · ID: <span
+            id="c-rid">—</span></span>
+        <div style="display:flex;gap:8px">
+          <button onclick="resolveConflict('remote')" class="btn btn-success">✅ Usar NUBE</button>
+          <button onclick="resolveConflict('local')" class="btn">🖥 Usar LOCAL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <script>
+    // ══════════════════════════════════════════
+    // ESTADO GLOBAL
+    // ══════════════════════════════════════════
+    let DB = { users: [], products: [], customers: [], suppliers: [], purchases: [], audit: [], queue: [], sales: [] };
+    let Cloud = { users: [], suppliers: [], purchases: [] };
+    let session = null;
+    let isOnline = true;
+    let cart = [];
+    let purchaseCart = [];
+    let selectedPayMethod = 'Efectivo';
+    let saleCounter = 0;
+    let purchaseCounter = 0;
+
+    // ══════════════════════════════════════════
+    // DB / PERSISTENCIA
+    // ══════════════════════════════════════════
+    function initDB() {
+      if (!localStorage.getItem('sp_v4')) {
+        DB.users = [
+          { Id: 'u1', Username: 'admin', Pass: 'admin123', FullName: 'Administrador General', Email: 'admin@stockpoint.co', Role: 'Administrador', IsActive: true, CreatedAt: '2026-05-26T00:00:00Z' },
+          { Id: 'u2', Username: 'vendedor', Pass: 'vendedor123', FullName: 'Juan Vendedor', Email: 'juan@stockpoint.co', Role: 'Vendedor', IsActive: true, CreatedAt: '2026-05-26T00:00:00Z' },
+          { Id: 'u3', Username: 'bodega', Pass: 'bodega123', FullName: 'Marta Bodega', Email: 'marta@stockpoint.co', Role: 'Bodega', IsActive: true, CreatedAt: '2026-05-26T00:00:00Z' }
+        ];
+        DB.products = [
+          { Id: 'p1', EAN: '7702011028137', SKU: 'PROD001', Name: 'Computadora Portátil Core i7', Category: 'Tecnología', Cost: 850, Price: 220000, WarehouseMain: 15, WarehouseSecondary: 3, MinimumStock: 5, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'p2', EAN: '7702011038137', SKU: 'PROD002', Name: 'Monitor UltraWide 29"', Category: 'Tecnología', Cost: 180, Price: 567000, WarehouseMain: 4, WarehouseSecondary: 1, MinimumStock: 6, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'p3', EAN: '7702011048137', SKU: 'PROD003', Name: 'Silla Ergonómica Pro', Category: 'Mobiliario', Cost: 120, Price: 395000, WarehouseMain: 25, WarehouseSecondary: 10, MinimumStock: 8, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'p4', EAN: '7702011058137', SKU: 'PROD004', Name: 'Escritorio Elevable Eléctrico', Category: 'Mobiliario', Cost: 310, Price: 1400000, WarehouseMain: 2, WarehouseSecondary: 0, MinimumStock: 3, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'p5', EAN: '7702011068137', SKU: 'PROD005', Name: 'Auriculares Noise Cancelling', Category: 'Tecnología', Cost: 60, Price: 290000, WarehouseMain: 8, WarehouseSecondary: 4, MinimumStock: 5, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'p6', EAN: '7702011078137', SKU: 'PROD006', Name: 'Teclado Mecánico RGB', Category: 'Tecnología', Cost: 45, Price: 190000, WarehouseMain: 0, WarehouseSecondary: 0, MinimumStock: 3, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' }
+        ];
+        DB.customers = [
+          { Id: 'c1', FullName: 'ACME Corp Colombia', TaxId: '900.123.456-1', Email: 'compras@acme.com.co', Phone: '+57 300 123 4567', PipelineStage: 'Cerrado', CreditLimit: 5000, OutstandingBalance: 1250, IsActive: true, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'c2', FullName: 'Distribuciones Globales S.A.S', TaxId: '830.987.654-2', Email: 'ventas@global.com', Phone: '+57 315 987 6543', PipelineStage: 'Propuesta', CreditLimit: 12000, OutstandingBalance: 0, IsActive: true, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'c3', FullName: 'Industrias Metalmecánicas Luna', TaxId: '901.444.888-0', Email: 'contacto@metalluna.com', Phone: '+57 320 444 8888', PipelineStage: 'Prospecto', CreditLimit: 2000, OutstandingBalance: 450, IsActive: true, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' }
+        ];
+        DB.suppliers = [
+          { Id: 'prov1', FullName: 'Tecnología y Suministros S.A.', TaxId: '890.222.111-4', Email: 'contacto@tecno-suministros.com', Phone: '+57 311 222 3333', Address: 'Av. 45 #88-12, Bogotá', ContactPerson: 'Carlos Pérez', IsActive: true, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' },
+          { Id: 'prov2', FullName: 'Distribuidora Mobiliaria Mayorista', TaxId: '900.555.777-2', Email: 'ventas@distrimobiliaria.co', Phone: '+57 314 999 8888', Address: 'Calle 15 #30-45, Medellín', ContactPerson: 'Ana María Gómez', IsActive: true, UpdatedAt: '2026-05-26T00:00:00Z', UpdatedBy: 'Seed' }
+        ];
+        DB.audit = [{ Id: 'a0', UserId: 'System', Username: 'SeedEngine', EventTime: new Date().toISOString(), EventType: 'Database_Init', MachineName: 'DESKTOP-CLIENT', Description: 'SQLite inicializado con datos semilla.' }];
+        DB.queue = [];
+        DB.sales = [];
+        DB.purchases = [];
+        saleCounter = 0;
+        purchaseCounter = 0;
+        Cloud.users = JSON.parse(JSON.stringify(DB.users));
+        Cloud.suppliers = JSON.parse(JSON.stringify(DB.suppliers));
+        Cloud.purchases = [];
+        persist();
+        localStorage.setItem('sp_v4', '1');
+      } else {
+        load();
+        saleCounter = DB.sales.length;
+        purchaseCounter = DB.purchases.length;
+      }
+      updateOutbox();
+    }
+
+    function persist() {
+      localStorage.setItem('sp_db', JSON.stringify(DB));
+      localStorage.setItem('sp_cloud', JSON.stringify(Cloud));
+    }
+    function load() {
+      DB = JSON.parse(localStorage.getItem('sp_db') || '{}');
+      if (!DB.sales) DB.sales = [];
+      if (!DB.suppliers) DB.suppliers = [];
+      if (!DB.purchases) DB.purchases = [];
+      Cloud = JSON.parse(localStorage.getItem('sp_cloud') || '{"users":[],"suppliers":[],"purchases":[]}');
+      if (!Cloud.suppliers) Cloud.suppliers = [];
+      if (!Cloud.purchases) Cloud.purchases = [];
+    }
+
+    // ══════════════════════════════════════════
+    // TOAST
+    // ══════════════════════════════════════════
+    function toast(msg, type = 'ok') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show toast-' + type;
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.className = '', 2800);
+    }
+
+    // ══════════════════════════════════════════
+    // AUDITORÍA
+    // ══════════════════════════════════════════
+    function audit(userId, username, type, desc) {
+      const log = { Id: 'a_' + Date.now(), UserId: userId || '?', Username: username || 'System', EventTime: new Date().toISOString(), EventType: type, MachineName: 'DESKTOP-CLIENT', Description: desc };
+      DB.audit.unshift(log);
+      persist();
+      if (document.getElementById('t-audit')) renderAudit();
+    }
+
+    // ══════════════════════════════════════════
+    // AUTH
+    // ══════════════════════════════════════════
+    function login() {
+      const u = document.getElementById('l-user').value.trim().toLowerCase();
+      const p = document.getElementById('l-pass').value;
+      const err = document.getElementById('l-err');
+      err.textContent = '';
+      if (!u || !p) { err.textContent = 'Ingresa usuario y contraseña.'; return; }
+      const user = DB.users.find(x => x.Username === u);
+      if (!user) { err.textContent = 'Usuario no encontrado.'; audit('?', u, 'Login_Failed', `Usuario '${u}' no existe.`); return; }
+      if (!user.IsActive) { err.textContent = 'Cuenta desactivada.'; audit(user.Id, u, 'Login_Failed', 'Cuenta inactiva.'); return; }
+      if (user.Pass !== p) { err.textContent = 'Contraseña incorrecta.'; audit(user.Id, u, 'Login_Failed', 'Contraseña errónea.'); return; }
+      session = user;
+      audit(user.Id, user.Username, 'Login_Success', `Sesión iniciada. JWT firmado para rol ${user.Role}.`);
+      document.getElementById('s-name').textContent = user.FullName;
+      document.getElementById('s-role').textContent = user.Role;
+      document.getElementById('f-user').textContent = user.Username + ' (' + user.Role + ')';
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('app-shell').style.display = 'grid';
+      document.getElementById('l-user').value = '';
+      document.getElementById('l-pass').value = '';
+      nav('Dashboard');
+    }
+    function logout() {
+      if (session) audit(session.Id, session.Username, 'Logout', 'Sesión cerrada por el usuario.');
+      session = null;
+      cart = [];
+      document.getElementById('app-shell').style.display = 'none';
+      document.getElementById('login-overlay').style.display = 'flex';
+    }
+
+    // ══════════════════════════════════════════
+    // NAVEGACIÓN
+    // ══════════════════════════════════════════
+    const TAB_TITLES = {
+      Dashboard: 'Dashboard', Ventas: 'Nueva Venta', HistorialVentas: 'Historial de Ventas',
+      Compras: 'Entrada / Compra de Inventario', HistorialCompras: 'Historial de Compras',
+      Inventario: 'Catálogo e Inventario', Productos: 'Gestión de Productos (CRUD)',
+      CRM: 'Clientes y CRM', Proveedores: 'Gestión de Proveedores (CRUD)',
+      Reportes: 'Reportes de Inventario y Ventas',
+      Usuarios: 'Gestión de Usuarios', Auditoria: 'Auditoría de Accesos'
+    };
+    function nav(tab) {
+      if ((tab === 'Usuarios' || tab === 'Auditoria') && session.Role !== 'Administrador') {
+        audit(session.Id, session.Username, 'Access_Denied', `Intento no autorizado: panel de ${tab}.`);
+        toast(`⛔ Acceso denegado. Se requiere rol Administrador.`, 'err');
+        return;
+      }
+      document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('m-' + tab)?.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('p-' + tab).classList.add('active');
+      document.getElementById('tab-title').textContent = TAB_TITLES[tab] || tab;
+
+      if (tab === 'Inventario') renderInventory();
+      if (tab === 'Productos') { renderProductos(); clearProductoForm(); }
+      if (tab === 'CRM') { renderCRM(); clearCRMForm(); }
+      if (tab === 'Proveedores') { renderProveedores(); clearProveedorForm(); }
+      if (tab === 'Dashboard') { refreshDashboard(); }
+      if (tab === 'Auditoria') { document.getElementById('audit-denied').style.display = 'none'; document.getElementById('audit-cont').style.display = 'block'; renderAudit(); }
+      if (tab === 'Usuarios') { document.getElementById('usr-denied').style.display = 'none'; document.getElementById('usr-cont').style.display = 'grid'; renderUsers(); }
+      if (tab === 'Ventas') { initSalesPanel(); }
+      if (tab === 'Compras') { initComprasPanel(); }
+      if (tab === 'HistorialVentas') { renderHistory(); }
+      if (tab === 'HistorialCompras') { renderHistorialCompras(); }
+      if (tab === 'Reportes') { renderReportes(); }
+    }
+
+    // ══════════════════════════════════════════
+    // REPORTES
+    // ══════════════════════════════════════════
+    function showRepTab(tabId) {
+      ['critico', 'top', 'slow'].forEach(id => {
+        document.getElementById('rep-tab-' + id).classList.remove('btn');
+        document.getElementById('rep-tab-' + id).classList.add('btn-secondary');
+        document.getElementById('rep-sec-' + id).style.display = 'none';
+      });
+      const btn = document.getElementById('rep-tab-' + tabId);
+      btn.classList.remove('btn-secondary');
+      btn.classList.add('btn');
+      document.getElementById('rep-sec-' + tabId).style.display = 'block';
+    }
+
+    function renderReportes() {
+      const days = parseInt(document.getElementById('rep-days').value) || 0;
+      const msThreshold = days > 0 ? (days * 24 * 60 * 60 * 1000) : 0;
+      const now = new Date().getTime();
+
+      // 1. Stock Crítico
+      const criticos = DB.products.filter(p => (p.WarehouseMain + p.WarehouseSecondary) <= p.MinimumStock)
+        .sort((a, b) => (a.WarehouseMain + a.WarehouseSecondary) - (b.WarehouseMain + b.WarehouseSecondary));
+      document.getElementById('rep-kpi-critico').textContent = criticos.length;
+      document.getElementById('rep-critico-empty').style.display = criticos.length === 0 ? 'block' : 'none';
+      document.getElementById('t-rep-critico').innerHTML = criticos.map(p => {
+        const stock = p.WarehouseMain + p.WarehouseSecondary;
+        const deficit = p.MinimumStock - stock;
+        const alertHtml = stock === 0 ? '<span class="tag tag-low">Agotado</span>' : '<span class="tag tag-warning" style="background:var(--warning);color:#000">Crítico</span>';
+        return `<tr>
+          <td><b>${p.Name}</b></td><td>${p.SKU || p.EAN}</td><td>${p.Category || '—'}</td>
+          <td style="font-weight:bold;color:${stock === 0 ? 'var(--danger)' : 'var(--warning)'}">${stock} u.</td>
+          <td>${p.MinimumStock} u.</td><td style="color:var(--danger)">-${deficit} u.</td>
+          <td>${alertHtml}</td>
+        </tr>`;
+      }).join('');
+
+      // Analyze Sales for the selected period
+      const relevantSales = DB.sales.filter(s => msThreshold === 0 || (now - new Date(s.Date).getTime() <= msThreshold));
+      const productSales = {};
+      relevantSales.forEach(s => {
+        s.Lines.forEach(l => {
+          if (!productSales[l.ProductId]) productSales[l.ProductId] = { qty: 0, revenue: 0, name: l.Name, sku: l.SKU, category: '' };
+          productSales[l.ProductId].qty += l.Qty;
+          productSales[l.ProductId].revenue += l.Subtotal;
+        });
+      });
+      DB.products.forEach(p => {
+        if (productSales[p.Id]) productSales[p.Id].category = p.Category || '—';
+      });
+
+      const totalRevenue = Object.values(productSales).reduce((sum, s) => sum + s.revenue, 0);
+
+      // 2. Más Vendidos (Top)
+      const topProducts = Object.values(productSales).sort((a, b) => b.qty - a.qty);
+      if (topProducts.length > 0) {
+        document.getElementById('rep-kpi-top').textContent = topProducts[0].name.substring(0, 20) + (topProducts[0].name.length > 20 ? '...' : '');
+        document.getElementById('rep-kpi-top-qty').textContent = `${topProducts[0].qty} u. vendidas`;
+      } else {
+        document.getElementById('rep-kpi-top').textContent = '—';
+        document.getElementById('rep-kpi-top-qty').textContent = '';
+      }
+      document.getElementById('rep-top-empty').style.display = topProducts.length === 0 ? 'block' : 'none';
+      document.getElementById('t-rep-top').innerHTML = topProducts.map((p, i) => {
+        const perc = totalRevenue > 0 ? ((p.revenue / totalRevenue) * 100).toFixed(1) : 0;
+        return `<tr>
+          <td>#${i + 1}</td><td><b>${p.name}</b></td><td>${p.sku}</td><td>${p.category}</td>
+          <td style="font-weight:bold;color:var(--accent)">${p.qty}</td>
+          <td>$${p.revenue.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:50px;height:6px;background:#333;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${perc}%;background:#2ecc71"></div>
+              </div>
+              <span style="font-size:10px">${perc}%</span>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      // 3. Sin Rotación (Slow)
+      const slowProducts = DB.products.filter(p => {
+        const stock = p.WarehouseMain + p.WarehouseSecondary;
+        if (stock === 0) return false;
+        return !productSales[p.Id];
+      });
+      const lastSaleDate = {};
+      DB.sales.forEach(s => {
+        s.Lines.forEach(l => {
+          const sTime = new Date(s.Date).getTime();
+          if (!lastSaleDate[l.ProductId] || sTime > lastSaleDate[l.ProductId]) {
+            lastSaleDate[l.ProductId] = sTime;
+          }
+        });
+      });
+
+      document.getElementById('rep-kpi-slow').textContent = slowProducts.length;
+      document.getElementById('rep-slow-empty').style.display = slowProducts.length === 0 ? 'block' : 'none';
+      document.getElementById('t-rep-slow').innerHTML = slowProducts.map(p => {
+        const stock = p.WarehouseMain + p.WarehouseSecondary;
+        const inmovilizado = stock * p.Cost;
+        let diasStr = 'Nunca';
+        if (lastSaleDate[p.Id]) {
+          const diffMs = now - lastSaleDate[p.Id];
+          diasStr = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + ' días';
+        }
+        return `<tr>
+          <td><b>${p.Name}</b></td><td>${p.SKU || p.EAN}</td><td>${p.Category || '—'}</td>
+          <td>${stock} u.</td><td>$${p.Price.toLocaleString('es-CO')}</td>
+          <td style="color:var(--warning)">$${inmovilizado.toLocaleString('es-CO')}</td>
+          <td><span class="tag tag-inactive">${diasStr}</span></td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('rep-kpi-total').textContent = DB.products.length;
+    }
+
+    function exportReporte() {
+      const isCritico = document.getElementById('rep-sec-critico').style.display !== 'none';
+      const isTop = document.getElementById('rep-sec-top').style.display !== 'none';
+      let csv = "";
+      let filename = "reporte_";
+
+      if (isCritico) {
+        csv = "Producto,SKU,Categoria,StockTotal,MinimoConfigurado,Deficit\n";
+        const criticos = DB.products.filter(p => (p.WarehouseMain + p.WarehouseSecondary) <= p.MinimumStock);
+        criticos.forEach(p => {
+          const s = p.WarehouseMain + p.WarehouseSecondary;
+          csv += `"${p.Name}","${p.SKU}","${p.Category}",${s},${p.MinimumStock},${p.MinimumStock - s}\n`;
+        });
+        filename += "stock_critico";
+      } else if (isTop) {
+        csv = "Rank,Producto,SKU,Categoria,UnidadesVendidas,Ingresos\n";
+        const days = parseInt(document.getElementById('rep-days').value) || 0;
+        const msThreshold = days > 0 ? (days * 24 * 60 * 60 * 1000) : 0;
+        const now = new Date().getTime();
+        const relevantSales = DB.sales.filter(s => msThreshold === 0 || (now - new Date(s.Date).getTime() <= msThreshold));
+        const productSales = {};
+        relevantSales.forEach(s => {
+          s.Lines.forEach(l => {
+            if (!productSales[l.ProductId]) productSales[l.ProductId] = { qty: 0, revenue: 0, name: l.Name, sku: l.SKU, category: '' };
+            productSales[l.ProductId].qty += l.Qty;
+            productSales[l.ProductId].revenue += l.Subtotal;
+          });
+        });
+        DB.products.forEach(p => { if (productSales[p.Id]) productSales[p.Id].category = p.Category || '—'; });
+        const top = Object.values(productSales).sort((a, b) => b.qty - a.qty);
+        top.forEach((p, i) => {
+          csv += `${i + 1},"${p.name}","${p.sku}","${p.category}",${p.qty},${p.revenue}\n`;
+        });
+        filename += "mas_vendidos";
+      } else {
+        csv = "Producto,SKU,Categoria,StockActual,PrecioVenta,ValorInmovilizado\n";
+        const days = parseInt(document.getElementById('rep-days').value) || 0;
+        const msThreshold = days > 0 ? (days * 24 * 60 * 60 * 1000) : 0;
+        const now = new Date().getTime();
+        const relevantSales = DB.sales.filter(s => msThreshold === 0 || (now - new Date(s.Date).getTime() <= msThreshold));
+        const productSales = {};
+        relevantSales.forEach(s => { s.Lines.forEach(l => { productSales[l.ProductId] = true; }); });
+        const slow = DB.products.filter(p => {
+          const s = p.WarehouseMain + p.WarehouseSecondary;
+          return s > 0 && !productSales[p.Id];
+        });
+        slow.forEach(p => {
+          const s = p.WarehouseMain + p.WarehouseSecondary;
+          csv += `"${p.Name}","${p.SKU}","${p.Category}",${s},${p.Price},${s * p.Cost}\n`;
+        });
+        filename += "sin_rotacion";
+      }
+
+      filename += "_" + new Date().toISOString().slice(0, 10) + ".csv";
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // ══════════════════════════════════════════
+    // DASHBOARD
+    // ══════════════════════════════════════════
+    function refreshDashboard() {
+      const inv = DB.products.reduce((s, p) => s + (p.Cost * (p.WarehouseMain + p.WarehouseSecondary)), 0);
+      const lowStock = DB.products.filter(p => (p.WarehouseMain + p.WarehouseSecondary) <= p.MinimumStock);
+      const activeCust = DB.customers.filter(c => c.IsActive).length;
+
+      const today = new Date().toDateString();
+      const todaySales = DB.sales.filter(s => new Date(s.Date).toDateString() === today);
+      const todayTotal = todaySales.reduce((a, s) => a + s.Total, 0);
+
+      document.getElementById('kpi-inv').textContent = '$' + inv.toLocaleString('es-CO', { minimumFractionDigits: 0 });
+      document.getElementById('kpi-inv-sub').textContent = DB.products.length + ' productos';
+      document.getElementById('kpi-sales').textContent = '$' + todayTotal.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+      document.getElementById('kpi-sales-sub').textContent = todaySales.length + ' transacciones hoy';
+      document.getElementById('kpi-cust').textContent = activeCust;
+      document.getElementById('kpi-cust-sub').textContent = 'de ' + DB.customers.length + ' total';
+      document.getElementById('kpi-alerts').textContent = lowStock.length;
+      document.getElementById('kpi-alerts-sub').textContent = lowStock.length > 0 ? 'productos bajo mínimo ⚠' : 'Stock óptimo';
+
+      // Últimas ventas
+      const tb = document.getElementById('t-dash-sales');
+      tb.innerHTML = '';
+      const last5 = [...DB.sales].reverse().slice(0, 5);
+      if (!last5.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:20px">Sin ventas registradas aún.</td></tr>'; }
+      last5.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong>#${s.SaleNumber}</strong></td><td>${s.CustomerName || 'Consumidor Final'}</td>
+      <td>${s.Lines.length} item(s)</td><td style="color:var(--success);font-weight:bold">$${s.Total.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
+      <td>${s.PayMethod}</td><td style="color:var(--text-dim);font-size:11px">${s.Date.slice(11, 16)}</td>`;
+        tb.appendChild(tr);
+      });
+
+      // Stock crítico
+      const lcont = document.getElementById('low-stock-list');
+      if (!lowStock.length) { lcont.innerHTML = '✅ Sin alertas de stock.'; }
+      else { lcont.innerHTML = lowStock.map(p => `<div style="display:flex;justify-content:space-between"><span>${p.Name.slice(0, 28)}</span><span style="color:var(--danger);font-weight:bold">${p.WarehouseMain + p.WarehouseSecondary} u.</span></div>`).join(''); }
+
+      updateOutbox();
+    }
+
+    // ══════════════════════════════════════════
+    // INVENTARIO
+    // ══════════════════════════════════════════
+    function renderInventory() {
+      const tb = document.getElementById('t-inv');
+      tb.innerHTML = '';
+      DB.products.forEach(p => {
+        const total = p.WarehouseMain + p.WarehouseSecondary;
+        const low = total <= p.MinimumStock;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="font-family:monospace;font-size:11px">${p.EAN}</td>
+      <td><strong>${p.SKU}</strong></td><td>${p.Name}</td><td>${p.Category}</td>
+      <td>$${p.Cost.toLocaleString('es-CO')}</td><td>$${p.Price.toLocaleString('es-CO')}</td>
+      <td>${p.WarehouseMain}</td><td>${p.WarehouseSecondary}</td>
+      <td><strong>${total}</strong></td><td>${p.MinimumStock}</td>
+      <td><span class="tag ${low ? 'tag-low' : 'tag-ok'}">${low ? 'BAJO' : 'ÓPTIMO'}</span></td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    // ══════════════════════════════════════════
+    // PRODUCTOS — CRUD
+    // ══════════════════════════════════════════
+    function renderProductos() {
+      const tb = document.getElementById('t-prod');
+      if (!tb) return;
+      const q = (document.getElementById('prod-search')?.value || '').toLowerCase();
+      tb.innerHTML = '';
+      const list = DB.products.filter(p =>
+        !q || p.Name.toLowerCase().includes(q) ||
+        p.EAN.includes(q) || p.SKU.toLowerCase().includes(q) ||
+        p.Category.toLowerCase().includes(q)
+      );
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:20px">No se encontraron productos.</td></tr>';
+        return;
+      }
+      const selId = document.getElementById('prod-id').value;
+      list.forEach(p => {
+        if (p.IsActive === undefined) p.IsActive = true;
+        const total = p.WarehouseMain + p.WarehouseSecondary;
+        const low = total <= p.MinimumStock;
+        const tr = document.createElement('tr');
+        if (selId === p.Id) tr.classList.add('sel-row');
+        tr.onclick = () => selectProducto(p);
+        tr.style.opacity = p.IsActive ? '1' : '0.5';
+        const activeTag = p.IsActive ? '' : ' <span class="tag tag-inactive">INACTIVO</span>';
+        tr.innerHTML = `<td style="font-family:monospace;font-size:10px;color:var(--text-dim)">${p.EAN}</td>
+          <td><strong>${p.SKU}</strong></td>
+          <td>${p.Name}${activeTag}</td>
+          <td><span class="tag tag-pipeline">${p.Category}</span></td>
+          <td style="color:var(--text-dim)">$${p.Cost.toLocaleString('es-CO')}</td>
+          <td style="color:var(--accent);font-weight:bold">$${p.Price.toLocaleString('es-CO')}</td>
+          <td><strong style="color:${low ? 'var(--danger)' : 'inherit'}">${total} u.</strong></td>
+          <td><span class="tag ${low ? 'tag-low' : 'tag-ok'}">${low ? 'BAJO' : 'ÓPTIMO'}</span></td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    function selectProducto(p) {
+      document.getElementById('prod-id').value = p.Id;
+      document.getElementById('prod-ean').value = p.EAN;
+      document.getElementById('prod-sku').value = p.SKU;
+      document.getElementById('prod-name').value = p.Name;
+      document.getElementById('prod-cat').value = p.Category;
+      document.getElementById('prod-cost').value = p.Cost;
+      document.getElementById('prod-price').value = p.Price;
+      document.getElementById('prod-wh-main').value = p.WarehouseMain;
+      document.getElementById('prod-wh-sec').value = p.WarehouseSecondary;
+      document.getElementById('prod-min').value = p.MinimumStock;
+      document.getElementById('prod-form-title').textContent = 'Editar Producto';
+      const btnDel = document.getElementById('btn-del-prod');
+      btnDel.style.display = 'inline-flex';
+      if (p.IsActive === false) {
+        btnDel.innerHTML = '✅ Activar';
+        btnDel.className = 'btn btn-sm btn-success';
+      } else {
+        btnDel.innerHTML = '🚫 Desactivar';
+        btnDel.className = 'btn btn-sm btn-danger';
+      }
+      updateProductoMargin();
+      renderProductos();
+    }
+
+    function clearProductoForm() {
+      document.getElementById('prod-id').value = '';
+      document.getElementById('prod-ean').value = '';
+      document.getElementById('prod-sku').value = '';
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-cat').value = 'Tecnología';
+      document.getElementById('prod-cost').value = '';
+      document.getElementById('prod-price').value = '';
+      document.getElementById('prod-wh-main').value = '0';
+      document.getElementById('prod-wh-sec').value = '0';
+      document.getElementById('prod-min').value = '5';
+      document.getElementById('prod-form-title').textContent = 'Nuevo Producto';
+      document.getElementById('btn-del-prod').style.display = 'none';
+      document.getElementById('prod-margin-box').style.display = 'none';
+      renderProductos();
+    }
+
+    function updateProductoMargin() {
+      const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
+      const price = parseFloat(document.getElementById('prod-price').value) || 0;
+      const box = document.getElementById('prod-margin-box');
+      const val = document.getElementById('prod-margin-val');
+      if (cost > 0 && price > 0) {
+        const margin = ((price - cost) / price * 100).toFixed(1);
+        val.textContent = margin + '% (utilidad: $' + (price - cost).toLocaleString('es-CO') + ')';
+        val.style.color = margin < 10 ? 'var(--warning)' : 'var(--success)';
+        box.style.display = 'block';
+      } else { box.style.display = 'none'; }
+    }
+
+    function saveProducto() {
+      const id = document.getElementById('prod-id').value;
+      const ean = document.getElementById('prod-ean').value.trim();
+      const sku = document.getElementById('prod-sku').value.trim().toUpperCase();
+      const name = document.getElementById('prod-name').value.trim();
+      const cat = document.getElementById('prod-cat').value;
+      const cost = parseFloat(document.getElementById('prod-cost').value) || 0;
+      const price = parseFloat(document.getElementById('prod-price').value) || 0;
+      const whMain = parseInt(document.getElementById('prod-wh-main').value) || 0;
+      const whSec = parseInt(document.getElementById('prod-wh-sec').value) || 0;
+      const minStock = parseInt(document.getElementById('prod-min').value) || 0;
+
+      if (!ean || !sku || !name) { toast('EAN, SKU y Nombre son obligatorios.', 'err'); return; }
+      if (ean.length !== 13 || !/^\d+$/.test(ean)) { toast('El EAN debe tener exactamente 13 dígitos.', 'err'); return; }
+      if (price <= 0) { toast('El precio de venta debe ser mayor a cero.', 'err'); return; }
+
+      const now = new Date().toISOString();
+      const who = session?.Username || 'System';
+
+      if (!id) {
+        // Verificar EAN y SKU únicos
+        if (DB.products.find(p => p.EAN === ean)) { toast('Ya existe un producto con ese EAN.', 'err'); return; }
+        if (DB.products.find(p => p.SKU === sku)) { toast('Ya existe un producto con ese SKU.', 'err'); return; }
+        const prod = {
+          Id: 'p_' + Date.now(), EAN: ean, SKU: sku, Name: name,
+          Category: cat, Cost: cost, Price: price,
+          WarehouseMain: whMain, WarehouseSecondary: whSec,
+          MinimumStock: minStock, UpdatedAt: now, UpdatedBy: who,
+          IsActive: true
+        };
+        DB.products.push(prod);
+        audit(session.Id, session.Username, 'Product_Created', `Producto '${name}' (${sku}) creado.`);
+        enqueue('Products', prod.Id, 'INSERT', prod);
+      } else {
+        const idx = DB.products.findIndex(p => p.Id === id);
+        if (idx < 0) return;
+        // Verificar EAN y SKU únicos excluyendo el actual
+        if (DB.products.find(p => p.EAN === ean && p.Id !== id)) { toast('Ya existe otro producto con ese EAN.', 'err'); return; }
+        if (DB.products.find(p => p.SKU === sku && p.Id !== id)) { toast('Ya existe otro producto con ese SKU.', 'err'); return; }
+        DB.products[idx] = { ...DB.products[idx], EAN: ean, SKU: sku, Name: name, Category: cat, Cost: cost, Price: price, WarehouseMain: whMain, WarehouseSecondary: whSec, MinimumStock: minStock, UpdatedAt: now, UpdatedBy: who };
+        audit(session.Id, session.Username, 'Product_Updated', `Producto '${name}' (${sku}) actualizado.`);
+        enqueue('Products', id, 'UPDATE', DB.products[idx]);
+      }
+      persist();
+      clearProductoForm();
+      renderProductos();
+      toast('Producto guardado correctamente.', 'ok');
+    }
+
+    function toggleStatusProducto() {
+      const id = document.getElementById('prod-id').value;
+      if (!id) return;
+      const p = DB.products.find(x => x.Id === id);
+      if (!p) return;
+
+      if (p.IsActive === undefined) p.IsActive = true;
+      const newStatus = !p.IsActive;
+      const actionText = newStatus ? 'Activar' : 'Desactivar';
+
+      if (!confirm(`¿${actionText} el producto '${p.Name}'?`)) return;
+
+      p.IsActive = newStatus;
+      p.UpdatedAt = new Date().toISOString();
+      p.UpdatedBy = session?.Username || 'System';
+
+      audit(session.Id, session.Username, 'Product_Status_Changed', `Producto '${p.Name}' (${p.SKU}) ${newStatus ? 'activado' : 'desactivado'}.`);
+      enqueue('Products', id, 'UPDATE', p);
+      persist();
+      clearProductoForm();
+      renderProductos();
+      toast(`Producto ${newStatus ? 'activado' : 'desactivado'}.`, 'ok');
+    }
+
+    // ══════════════════════════════════════════
+    // VENTAS — PANEL
+    // ══════════════════════════════════════════
+    function initSalesPanel() {
+      buildCatalogGrid();
+      buildClientSelect();
+      updateCartUI();
+      setTimeout(() => document.getElementById('ean-input').focus(), 100);
+    }
+
+    function buildClientSelect() {
+      const sel = document.getElementById('sale-client');
+      sel.innerHTML = '<option value="">— Consumidor Final —</option>';
+      DB.customers.filter(c => c.IsActive).forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.Id; o.textContent = c.FullName + ' | ' + c.TaxId;
+        sel.appendChild(o);
+      });
+      updateClientInfo();
+    }
+
+    function updateClientInfo() {
+      const id = document.getElementById('sale-client').value;
+      const box = document.getElementById('client-info');
+      if (!id) { box.innerHTML = '<span style="color:var(--text-dim)">Sin facturación a cliente registrado.</span>'; return; }
+      const c = DB.customers.find(x => x.Id === id);
+      if (!c) { box.innerHTML = ''; return; }
+      box.innerHTML = `<strong>${c.FullName}</strong><br>
+    NIT: ${c.TaxId} · ${c.Email}<br>
+    Crédito disponible: <span style="color:${c.CreditLimit - c.OutstandingBalance < 500 ? 'var(--danger)' : 'var(--success)'}">$${(c.CreditLimit - c.OutstandingBalance).toLocaleString('es-CO')}</span>`;
+    }
+
+    function buildCatalogGrid() {
+      const grid = document.getElementById('catalog-grid');
+      grid.innerHTML = '';
+      DB.products.forEach(p => {
+        const total = p.WarehouseMain + p.WarehouseSecondary;
+        const noStock = total === 0;
+        const div = document.createElement('div');
+        div.className = 'prod-chip' + (noStock ? ' no-stock' : '');
+        div.title = noStock ? 'Sin stock disponible' : 'Clic para agregar al carrito';
+        div.onclick = () => { if (!noStock) addToCart(p.Id, 1); };
+        div.innerHTML = `<div class="ean">${p.EAN}</div>
+      <div class="pname">${p.Name}</div>
+      <div class="pprice">$${p.Price.toLocaleString('es-CO')}</div>
+      <div class="pstock ${noStock ? 'tag-low' : ''}">Stock: ${total} u. ${noStock ? '⚠' : ''}${total <= p.MinimumStock && !noStock ? '(bajo)' : ''}</div>`;
+        grid.appendChild(div);
+      });
+    }
+
+    // ══════════════════════════════════════════
+    // VENTAS — CARRITO
+    // ══════════════════════════════════════════
+    function addByEan() {
+      const inp = document.getElementById('ean-input');
+      const val = inp.value.trim();
+      const err = document.getElementById('ean-err');
+      if (!val) { err.textContent = 'Ingresa un código EAN-13 o SKU.'; return; }
+      const p = DB.products.find(x => x.EAN === val || x.SKU === val.toUpperCase());
+      if (!p) { err.textContent = `❌ Código '${val}' no encontrado en catálogo.`; inp.select(); return; }
+      err.textContent = '';
+      inp.value = '';
+      inp.focus();
+      addToCart(p.Id, 1);
+    }
+
+    function simulateScan() {
+      // Simula lectura de lector de código de barras con un EAN aleatorio
+      const p = DB.products.filter(x => (x.WarehouseMain + x.WarehouseSecondary) > 0);
+      if (!p.length) { toast('No hay productos con stock.', 'err'); return; }
+      const rnd = p[Math.floor(Math.random() * p.length)];
+      const inp = document.getElementById('ean-input');
+      inp.value = '';
+      // Simula digitar el EAN caracter a caracter (efecto de escáner)
+      let i = 0;
+      inp.className = 'ean-input scan-blink';
+      const interval = setInterval(() => {
+        if (i < rnd.EAN.length) { inp.value += rnd.EAN[i++]; }
+        else {
+          clearInterval(interval);
+          inp.className = 'ean-input scan-blink';
+          setTimeout(() => { addByEan(); }, 300);
+        }
+      }, 40);
+      toast(`📡 Escaneando: ${rnd.Name}`, 'ok');
+    }
+
+    function addToCart(productId, qty) {
+      const p = DB.products.find(x => x.Id === productId);
+      if (!p) return;
+      const total = p.WarehouseMain + p.WarehouseSecondary;
+
+      const existing = cart.find(l => l.ProductId === productId);
+      const currentQty = existing ? existing.Qty : 0;
+
+      if (currentQty + qty > total) {
+        toast(`⚠ Stock insuficiente. Disponible: ${total} u. En carrito: ${currentQty}.`, 'err');
+        document.getElementById('ean-err').textContent = `Sin stock suficiente (disponible: ${total} u.)`;
+        return;
+      }
+
+      if (existing) {
+        existing.Qty += qty;
+        existing.Subtotal = existing.Qty * existing.Price * (1 - existing.Discount / 100);
+      } else {
+        cart.push({
+          ProductId: p.Id, EAN: p.EAN, SKU: p.SKU, Name: p.Name,
+          Price: p.Price, Qty: qty, Discount: 0,
+          Subtotal: p.Price * qty
+        });
+      }
+      toast(`✅ ${p.Name} · agregado al carrito`, 'ok');
+      updateCartUI();
+      buildCatalogGrid(); // Refresca disponibilidad visual
+    }
+
+    function changeQty(productId, delta) {
+      const line = cart.find(l => l.ProductId === productId);
+      if (!line) return;
+      const p = DB.products.find(x => x.Id === productId);
+      const total = p.WarehouseMain + p.WarehouseSecondary;
+      const newQty = line.Qty + delta;
+      if (newQty <= 0) { removeFromCart(productId); return; }
+      if (newQty > total) { toast(`⚠ Stock máximo disponible: ${total} u.`, 'err'); return; }
+      line.Qty = newQty;
+      line.Subtotal = line.Qty * line.Price * (1 - line.Discount / 100);
+      updateCartUI();
+    }
+
+    function changeDiscount(productId, val) {
+      const line = cart.find(l => l.ProductId === productId);
+      if (!line) return;
+      const d = Math.min(100, Math.max(0, parseFloat(val) || 0));
+      line.Discount = d;
+      line.Subtotal = line.Qty * line.Price * (1 - d / 100);
+      updateCartUI();
+    }
+
+    function removeFromCart(productId) {
+      cart = cart.filter(l => l.ProductId !== productId);
+      updateCartUI();
+      buildCatalogGrid();
+    }
+
+    function clearCart(full = false) {
+      if (cart.length > 0 && full && !confirm('¿Cancelar la venta y vaciar el carrito?')) return;
+      cart = [];
+      document.getElementById('ean-err').textContent = '';
+      document.getElementById('pay-received').value = '';
+      document.getElementById('pay-change').textContent = '$0.00';
+      document.getElementById('sale-obs').value = '';
+      document.getElementById('ean-input').value = '';
+      document.getElementById('ean-input').focus();
+      updateCartUI();
+      buildCatalogGrid();
+    }
+
+    function updateCartUI() {
+      const empty = document.getElementById('cart-empty');
+      const tbl = document.getElementById('cart-tbl');
+      const body = document.getElementById('cart-body');
+      const count = document.getElementById('cart-count');
+      const btn = document.getElementById('btn-finalize');
+
+      count.textContent = cart.length;
+      if (!cart.length) {
+        empty.style.display = 'block'; tbl.style.display = 'none';
+        btn.disabled = true;
+        btn.classList.remove('has-items');
+        setTotals(0, 0, 0);
+        return;
+      }
+      empty.style.display = 'none'; tbl.style.display = 'table';
+      btn.disabled = false;
+      btn.classList.add('has-items');
+
+      body.innerHTML = '';
+      let rawSub = 0, discAmt = 0;
+      cart.forEach(l => {
+        rawSub += l.Price * l.Qty;
+        discAmt += l.Price * l.Qty * (l.Discount / 100);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="font-size:12px">
+        <strong>${l.Name}</strong>
+        <div style="font-family:monospace;font-size:10px;color:var(--text-dim);margin-top:2px">EAN: ${l.EAN}</div>
+      </td>
+      <td>$${l.Price.toLocaleString('es-CO')}</td>
+      <td>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${l.ProductId}',-1)">−</button>
+          <span class="qty-val">${l.Qty}</span>
+          <button class="qty-btn" onclick="changeQty('${l.ProductId}',1)">+</button>
+        </div>
+      </td>
+      <td><input type="number" value="${l.Discount}" min="0" max="100"
+          onchange="changeDiscount('${l.ProductId}',this.value)"
+          style="width:48px;background:#1a1a1a;border:1px solid var(--border);color:white;border-radius:3px;padding:2px 4px;font-size:11px;outline:none;text-align:center">%</td>
+      <td style="font-weight:bold;color:var(--accent)">$${l.Subtotal.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
+      <td><button class="del-btn" onclick="removeFromCart('${l.ProductId}')">🗑</button></td>`;
+        body.appendChild(tr);
+      });
+
+      const netSub = rawSub - discAmt;
+      const iva = netSub * 0.19;
+      const total = netSub + iva;
+      setTotals(rawSub, discAmt, iva, total);
+      calcChange();
+    }
+
+    function setTotals(rawSub, disc, iva, total) {
+      const fmt = n => ('$' + (n || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 }));
+      document.getElementById('s-sub').textContent = fmt(rawSub);
+      document.getElementById('s-disc').textContent = '-' + fmt(disc);
+      document.getElementById('s-iva').textContent = fmt(iva);
+      document.getElementById('s-total').textContent = fmt(total || 0);
+    }
+
+    function calcChange() {
+      if (selectedPayMethod !== 'Efectivo') { document.getElementById('pay-change').textContent = 'N/A'; return; }
+      // Total está en formato colombiano: $1.668.380,00  → quitar $ y puntos de miles → reemplazar coma decimal por punto
+      const totalRaw = document.getElementById('s-total').textContent
+        .replace(/[^0-9,]/g, '')   // deja solo dígitos y la coma decimal
+        .replace(',', '.');        // convierte coma decimal en punto
+      const total = parseFloat(totalRaw) || 0;
+      const received = parseFloat(document.getElementById('pay-received').value) || 0;
+      const change = received - total;
+      document.getElementById('pay-change').textContent = '$' + (Math.max(0, change)).toLocaleString('es-CO', { minimumFractionDigits: 2 });
+      document.getElementById('pay-change').style.color = change < 0 ? 'var(--danger)' : 'var(--success)';
+    }
+
+    function selectPay(btn, method) {
+      selectedPayMethod = method;
+      document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      const cashRow = document.getElementById('pay-cash-row');
+      cashRow.style.display = method === 'Efectivo' ? 'block' : 'none';
+      calcChange();
+    }
+
+    // ══════════════════════════════════════════
+    // VENTAS — FINALIZAR
+    // ══════════════════════════════════════════
+    function finalizeSale() {
+      if (!cart.length) { toast('El carrito está vacío.', 'err'); return; }
+
+      // Validar stock actual antes de confirmar
+      for (const line of cart) {
+        const p = DB.products.find(x => x.Id === line.ProductId);
+        const avail = (p.WarehouseMain + p.WarehouseSecondary);
+        if (line.Qty > avail) {
+          toast(`❌ Stock insuficiente para "${line.Name}". Disponible: ${avail}.`, 'err');
+          return;
+        }
+      }
+
+      if (selectedPayMethod === 'Efectivo') {
+        const totalText = document.getElementById('s-total').textContent.replace(/[^0-9.,]/g, '').replace(',', '.');
+        const total = parseFloat(totalText) || 0;
+        const received = parseFloat(document.getElementById('pay-received').value) || 0;
+        if (received < total && received > 0) {
+          if (!confirm(`El efectivo recibido ($${received}) es menor al total ($${total.toFixed(2)}). ¿Continuar como pago parcial?`)) return;
+        }
+      }
+
+      // Calcular montos
+      let rawSub = 0, discAmt = 0;
+      cart.forEach(l => { rawSub += l.Price * l.Qty; discAmt += l.Price * l.Qty * (l.Discount / 100); });
+      const netSub = rawSub - discAmt;
+      const iva = netSub * 0.19;
+      const total = netSub + iva;
+
+      // Cliente
+      const clientId = document.getElementById('sale-client').value;
+      const customer = clientId ? DB.customers.find(c => c.Id === clientId) : null;
+
+      // Número de venta
+      saleCounter++;
+      const saleNum = String(saleCounter).padStart(5, '0');
+      const now = new Date().toISOString();
+
+      // Construir venta
+      const sale = {
+        Id: 'sale_' + Date.now(), SaleNumber: saleNum, Date: now,
+        CustomerId: clientId || null, CustomerName: customer ? customer.FullName : 'Consumidor Final',
+        Lines: cart.map(l => ({ ...l })),
+        RawSubtotal: rawSub, Discount: discAmt, NetSubtotal: netSub,
+        IVA: iva, Total: total,
+        PayMethod: selectedPayMethod,
+        CashReceived: parseFloat(document.getElementById('pay-received').value) || 0,
+        Observations: document.getElementById('sale-obs').value.trim(),
+        SoldBy: session.Username, SoldByName: session.FullName
+      };
+
+      // ─── DESCONTAR INVENTARIO ───
+      cart.forEach(line => {
+        const p = DB.products.find(x => x.Id === line.ProductId);
+        let remaining = line.Qty;
+        // Primero descuenta de bodega principal
+        const fromMain = Math.min(remaining, p.WarehouseMain);
+        p.WarehouseMain -= fromMain;
+        remaining -= fromMain;
+        // Si falta, descuenta de bodega secundaria
+        if (remaining > 0) {
+          const fromSec = Math.min(remaining, p.WarehouseSecondary);
+          p.WarehouseSecondary -= fromSec;
+        }
+        p.UpdatedAt = now; p.UpdatedBy = session.Username;
+        enqueue('Products', p.Id, 'UPDATE', p);
+      });
+
+      // Guardar venta
+      DB.sales.push(sale);
+      enqueue('Sales', sale.Id, 'INSERT', sale);
+
+      // Auditar
+      audit(session.Id, session.Username, 'Sale_Registered',
+        `Venta #${saleNum} · ${cart.length} item(s) · Total: $${total.toFixed(2)} · Cliente: ${sale.CustomerName}`);
+
+      persist();
+
+      // Mostrar ticket
+      showTicket(sale);
+      toast(`✅ Venta #${saleNum} registrada exitosamente.`, 'ok');
+
+      // Resetear carrito
+      cart = [];
+      document.getElementById('pay-received').value = '';
+      document.getElementById('sale-obs').value = '';
+      updateCartUI();
+      buildCatalogGrid();
+      document.getElementById('ean-input').focus();
+    }
+
+    // ══════════════════════════════════════════
+    // TICKET DE IMPRESIÓN
+    // ══════════════════════════════════════════
+    function showTicket(sale) {
+      const fmt = n => '$' + (n || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 });
+      const d = new Date(sale.Date);
+      const dateStr = d.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+      document.getElementById('tk-num').textContent = sale.SaleNumber;
+      document.getElementById('tk-date').textContent = dateStr;
+      document.getElementById('tk-cashier').textContent = sale.SoldByName;
+      document.getElementById('tk-client').textContent = sale.CustomerName;
+      document.getElementById('tk-pay').textContent = sale.PayMethod;
+
+      const items = document.getElementById('tk-items');
+      items.innerHTML = sale.Lines.map(l => `
+    <div class="ticket-item">
+      <span class="item-name">${l.Name}</span>
+      <span>${fmt(l.Subtotal)}</span>
+      <span class="item-detail">${l.Qty} u. × ${fmt(l.Price)}${l.Discount > 0 ? ' · Dto. ' + l.Discount + '%' : ''}</span>
+    </div>`).join('');
+
+      document.getElementById('tk-sub').textContent = fmt(sale.RawSubtotal);
+      document.getElementById('tk-disc').textContent = sale.Discount > 0 ? '-' + fmt(sale.Discount) : '$0.00';
+      document.getElementById('tk-iva').textContent = fmt(sale.IVA);
+      document.getElementById('tk-total').textContent = fmt(sale.Total);
+
+      const chgRow = document.getElementById('tk-change-row');
+      if (sale.PayMethod === 'Efectivo' && sale.CashReceived > 0) {
+        document.getElementById('tk-change').textContent = fmt(Math.max(0, sale.CashReceived - sale.Total));
+        chgRow.style.display = 'flex';
+      } else { chgRow.style.display = 'none'; }
+
+      document.getElementById('ticket-overlay').style.display = 'flex';
+    }
+
+    function printTicket() {
+      // Genera ventana de impresión con el contenido del ticket
+      const box = document.querySelector('.ticket-box').cloneNode(true);
+      // Quitar botones del clon
+      box.querySelector('.ticket-actions').remove();
+      const win = window.open('', '_blank', 'width=380,height=700');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket StockPoint</title>
+    <style>
+      body{font-family:'Courier New',monospace;background:white;color:#111;margin:0;padding:0;}
+      .ticket-header{background:#0078d4;color:white;padding:16px;text-align:center;}
+      .ticket-header h2{font-size:18px;font-weight:900;letter-spacing:2px;margin:0;}
+      .ticket-header p{font-size:10px;margin-top:4px;opacity:.8;}
+      .ticket-body{padding:16px;font-size:12px;}
+      .ticket-sep{border:none;border-top:1px dashed #aaa;margin:10px 0;}
+      .ticket-row{display:flex;justify-content:space-between;margin:3px 0;}
+      .ticket-row.bold{font-weight:bold;}
+      .ticket-row.total{font-size:15px;font-weight:bold;border-top:2px solid #111;padding-top:8px;margin-top:8px;}
+      .ticket-item{margin:4px 0;display:grid;grid-template-columns:1fr auto;gap:4px;}
+      .ticket-item .item-name{font-weight:bold;font-size:11px;}
+      .ticket-item .item-detail{color:#555;font-size:10px;grid-column:1/3;}
+      .ticket-footer{background:#f5f5f5;padding:12px;text-align:center;font-size:10px;color:#555;border-top:1px dashed #aaa;}
+      @media print{body{margin:0;}button{display:none!important;}}
+    </style></head><body>`);
+      win.document.write(box.outerHTML);
+      win.document.write('</body></html>');
+      win.document.close();
+      setTimeout(() => { win.focus(); win.print(); }, 400);
+    }
+
+    // ══════════════════════════════════════════
+    // HISTORIAL VENTAS
+    // ══════════════════════════════════════════
+    function renderHistory() {
+      const tb = document.getElementById('t-history');
+      const q = (document.getElementById('hist-search')?.value || '').toLowerCase();
+      tb.innerHTML = '';
+      const list = [...DB.sales].reverse().filter(s =>
+        !q || s.SaleNumber.includes(q) ||
+        (s.CustomerName || '').toLowerCase().includes(q) ||
+        (s.SoldBy || '').toLowerCase().includes(q)
+      );
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-dim);padding:24px">Sin ventas registradas.</td></tr>';
+        return;
+      }
+      const fmt = n => '$' + (n || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 });
+      list.forEach(s => {
+        const d = new Date(s.Date);
+        const dateStr = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong style="color:var(--accent)">#${s.SaleNumber}</strong></td>
+      <td style="font-size:11px;color:var(--text-dim)">${dateStr}</td>
+      <td>${s.CustomerName || 'Consumidor Final'}</td>
+      <td style="text-align:center">${s.Lines.length}</td>
+      <td>${fmt(s.RawSubtotal)}</td>
+      <td>${fmt(s.IVA)}</td>
+      <td style="font-weight:bold;color:var(--success)">${fmt(s.Total)}</td>
+      <td><span class="tag tag-pipeline">${s.PayMethod}</span></td>
+      <td style="font-size:11px">${s.SoldBy}</td>
+      <td>
+        <button onclick="viewSaleDetail('${s.Id}')" class="btn btn-sm btn-secondary" style="font-size:10px">📄 Ver</button>
+        <button onclick="reprTicket('${s.Id}')" class="btn btn-sm" style="font-size:10px;margin-left:4px">🖨</button>
+      </td>`;
+        tb.appendChild(tr);
+
+        // Detalle expandible inline
+        const detail = document.createElement('tr');
+        detail.id = 'det-' + s.Id;
+        detail.style.display = 'none';
+        detail.innerHTML = `<td colspan="10" style="background:#1a1a1a;padding:10px 14px">
+      <div style="font-size:11px;margin-bottom:6px;color:var(--text-dim)">
+        <strong style="color:var(--text-white)">Detalle de líneas · Venta #${s.SaleNumber}</strong>
+        ${s.Observations ? '<span style="margin-left:12px;font-style:italic">"' + s.Observations + '"</span>' : ''}
+      </div>
+      <table style="width:100%;font-size:11px">
+        <thead><tr style="background:transparent">
+          <th style="padding:4px 8px">Producto</th><th>EAN</th><th>P.Unit</th>
+          <th>Cant.</th><th>Dto.%</th><th>Subtotal</th>
+        </tr></thead>
+        <tbody>${s.Lines.map(l => `<tr style="background:transparent">
+          <td style="padding:4px 8px">${l.Name}</td>
+          <td style="font-family:monospace;color:var(--text-dim)">${l.EAN}</td>
+          <td>${fmt(l.Price)}</td><td>${l.Qty}</td>
+          <td>${l.Discount ? l.Discount + '%' : '—'}</td>
+          <td style="color:var(--accent);font-weight:bold">${fmt(l.Subtotal)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </td>`;
+        tb.appendChild(detail);
+      });
+    }
+
+    function viewSaleDetail(id) {
+      const row = document.getElementById('det-' + id);
+      if (!row) return;
+      const vis = row.style.display === 'none';
+      // Ocultar todos
+      document.querySelectorAll('[id^="det-"]').forEach(r => r.style.display = 'none');
+      if (vis) row.style.display = 'table-row';
+    }
+
+    function reprTicket(id) {
+      const s = DB.sales.find(x => x.Id === id);
+      if (s) showTicket(s);
+    }
+
+    function exportCSV() {
+      if (!DB.sales.length) { toast('Sin ventas para exportar.', 'err'); return; }
+      const fmt = n => (n || 0).toFixed(2);
+      let csv = '#Venta,Fecha,Cliente,Items,Subtotal,Descuento,IVA,Total,Pago,Vendedor\n';
+      DB.sales.forEach(s => {
+        csv += `${s.SaleNumber},"${s.Date}","${s.CustomerName || 'Consumidor Final'}",${s.Lines.length},${fmt(s.RawSubtotal)},${fmt(s.Discount)},${fmt(s.IVA)},${fmt(s.Total)},${s.PayMethod},${s.SoldBy}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'ventas_stockpoint_' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.click(); URL.revokeObjectURL(url);
+      toast('CSV exportado.', 'ok');
+    }
+
+    // ══════════════════════════════════════════
+    // CRM
+    // ══════════════════════════════════════════
+    function renderCRM() {
+      const showInactive = document.getElementById('crm-show-inactive')?.checked;
+      const tb = document.getElementById('t-crm');
+      tb.innerHTML = '';
+      const list = DB.customers.filter(c => showInactive || c.IsActive);
+      if (!list.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:20px">No hay clientes.</td></tr>'; return; }
+      list.forEach(c => {
+        const tr = document.createElement('tr');
+        const selId = document.getElementById('c-id').value;
+        if (selId === c.Id) tr.classList.add('sel-row');
+        tr.onclick = () => selectCustomer(c);
+        tr.innerHTML = `<td><strong>${c.FullName}</strong><br><span style="font-size:10px;color:var(--text-dim)">${c.Email}</span></td>
+      <td style="font-size:12px">${c.TaxId}</td>
+      <td><span class="tag tag-pipeline">${c.PipelineStage}</span></td>
+      <td style="color:${c.OutstandingBalance > 0 ? 'var(--warning)' : 'inherit'}">$${c.OutstandingBalance.toLocaleString('es-CO')}</td>
+      <td><span class="tag ${c.IsActive ? 'tag-ok' : 'tag-inactive'}">${c.IsActive ? 'ACTIVO' : 'INACTIVO'}</span></td>`;
+        tb.appendChild(tr);
+      });
+    }
+    function selectCustomer(c) {
+      document.getElementById('c-id').value = c.Id;
+      document.getElementById('c-name').value = c.FullName;
+      document.getElementById('c-taxid').value = c.TaxId;
+      document.getElementById('c-email').value = c.Email;
+      document.getElementById('c-phone').value = c.Phone;
+      document.getElementById('c-stage').value = c.PipelineStage;
+      document.getElementById('c-credit').value = c.CreditLimit;
+      document.getElementById('c-balance').value = c.OutstandingBalance;
+      document.getElementById('c-active').checked = c.IsActive;
+      document.getElementById('crm-form-title').textContent = 'Editar Cliente';
+      const btn = document.getElementById('btn-deactivate');
+      btn.style.display = 'inline-flex';
+      btn.textContent = c.IsActive ? '⏸ Desactivar' : '▶ Reactivar';
+      btn.className = 'btn btn-sm ' + (c.IsActive ? 'btn-warning' : 'btn-success');
+      document.getElementById('c-inactive-warn').style.display = c.IsActive ? 'none' : 'block';
+      renderCRM();
+    }
+    function clearCRMForm() {
+      ['c-id', 'c-name', 'c-taxid', 'c-email', 'c-phone'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('c-stage').value = 'Prospecto';
+      document.getElementById('c-credit').value = '';
+      document.getElementById('c-balance').value = '0';
+      document.getElementById('c-active').checked = true;
+      document.getElementById('crm-form-title').textContent = 'Nuevo Cliente';
+      document.getElementById('btn-deactivate').style.display = 'none';
+      document.getElementById('c-inactive-warn').style.display = 'none';
+      renderCRM();
+    }
+    function saveCustomer() {
+      const id = document.getElementById('c-id').value;
+      const name = document.getElementById('c-name').value.trim();
+      const taxid = document.getElementById('c-taxid').value.trim();
+      const email = document.getElementById('c-email').value.trim();
+      const phone = document.getElementById('c-phone').value.trim();
+      const stage = document.getElementById('c-stage').value;
+      const credit = parseFloat(document.getElementById('c-credit').value) || 0;
+      const balance = parseFloat(document.getElementById('c-balance').value) || 0;
+      const isActive = document.getElementById('c-active').checked;
+      if (!name || !taxid || !email) { toast('Razón Social, Identificación y Correo son obligatorios.', 'err'); return; }
+      const now = new Date().toISOString();
+      const who = session?.Username || 'System';
+      if (!id) {
+        const cust = { Id: 'c_' + Date.now(), FullName: name, TaxId: taxid, Email: email, Phone: phone, PipelineStage: stage, CreditLimit: credit, OutstandingBalance: balance, IsActive: isActive, UpdatedAt: now, UpdatedBy: who };
+        DB.customers.push(cust);
+        audit(session.Id, session.Username, 'Customer_Created', `Cliente '${name}' creado.`);
+        enqueue('Customers', cust.Id, 'INSERT', cust);
+      } else {
+        const idx = DB.customers.findIndex(c => c.Id === id);
+        if (idx < 0) return;
+        DB.customers[idx] = { ...DB.customers[idx], FullName: name, TaxId: taxid, Email: email, Phone: phone, PipelineStage: stage, CreditLimit: credit, OutstandingBalance: balance, IsActive: isActive, UpdatedAt: now, UpdatedBy: who };
+        audit(session.Id, session.Username, 'Customer_Updated', `Cliente '${name}' actualizado.`);
+        enqueue('Customers', id, 'UPDATE', DB.customers[idx]);
+      }
+      persist(); clearCRMForm(); renderCRM(); toast('Cliente guardado.', 'ok');
+    }
+    function toggleCustomerActive() {
+      const id = document.getElementById('c-id').value;
+      if (!id) return;
+      const idx = DB.customers.findIndex(c => c.Id === id);
+      if (idx < 0) return;
+      DB.customers[idx].IsActive = !DB.customers[idx].IsActive;
+      DB.customers[idx].UpdatedAt = new Date().toISOString();
+      const action = DB.customers[idx].IsActive ? 'reactivado' : 'desactivado';
+      audit(session.Id, session.Username, 'Customer_StatusChanged', `Cliente '${DB.customers[idx].FullName}' ${action}.`);
+      enqueue('Customers', id, 'UPDATE', DB.customers[idx]);
+      persist(); selectCustomer(DB.customers[idx]); renderCRM();
+      toast(`Cliente ${action}.`, 'ok');
+    }
+
+    // ══════════════════════════════════════════
+    // PROVEEDORES
+    // ══════════════════════════════════════════
+    function renderProveedores() {
+      const showInactive = document.getElementById('prov-show-inactive')?.checked;
+      const tb = document.getElementById('t-prov');
+      if (!tb) return;
+      tb.innerHTML = '';
+      const list = DB.suppliers.filter(p => showInactive || p.IsActive);
+      if (!list.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:20px">No hay proveedores.</td></tr>'; return; }
+      list.forEach(p => {
+        const tr = document.createElement('tr');
+        const selId = document.getElementById('pv-id').value;
+        if (selId === p.Id) tr.classList.add('sel-row');
+        tr.onclick = () => selectProveedor(p);
+        tr.innerHTML = `<td><strong>${p.FullName}</strong><br><span style="font-size:10px;color:var(--text-dim)">${p.Email}</span></td>
+      <td style="font-size:12px">${p.TaxId}</td>
+      <td>${p.ContactPerson || '—'}</td>
+      <td>${p.Phone || '—'}</td>
+      <td><span class="tag ${p.IsActive ? 'tag-ok' : 'tag-inactive'}">${p.IsActive ? 'ACTIVO' : 'INACTIVO'}</span></td>`;
+        tb.appendChild(tr);
+      });
+    }
+    function selectProveedor(p) {
+      document.getElementById('pv-id').value = p.Id;
+      document.getElementById('pv-name').value = p.FullName;
+      document.getElementById('pv-taxid').value = p.TaxId;
+      document.getElementById('pv-email').value = p.Email;
+      document.getElementById('pv-phone').value = p.Phone;
+      document.getElementById('pv-address').value = p.Address || '';
+      document.getElementById('pv-contact').value = p.ContactPerson || '';
+      document.getElementById('pv-active').checked = p.IsActive;
+      document.getElementById('prov-form-title').textContent = 'Editar Proveedor';
+      const btn = document.getElementById('btn-deactivate-prov');
+      btn.style.display = 'inline-flex';
+      btn.textContent = p.IsActive ? '⏸ Desactivar' : '▶ Reactivar';
+      btn.className = 'btn btn-sm ' + (p.IsActive ? 'btn-warning' : 'btn-success');
+      document.getElementById('pv-inactive-warn').style.display = p.IsActive ? 'none' : 'block';
+      renderProveedores();
+    }
+    function clearProveedorForm() {
+      ['pv-id', 'pv-name', 'pv-taxid', 'pv-email', 'pv-phone', 'pv-address', 'pv-contact'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const act = document.getElementById('pv-active');
+      if (act) act.checked = true;
+      const t = document.getElementById('prov-form-title');
+      if (t) t.textContent = 'Nuevo Proveedor';
+      const btn = document.getElementById('btn-deactivate-prov');
+      if (btn) btn.style.display = 'none';
+      const warn = document.getElementById('pv-inactive-warn');
+      if (warn) warn.style.display = 'none';
+      renderProveedores();
+    }
+    function saveProveedor() {
+      const id = document.getElementById('pv-id').value;
+      const name = document.getElementById('pv-name').value.trim();
+      const taxid = document.getElementById('pv-taxid').value.trim();
+      const email = document.getElementById('pv-email').value.trim();
+      const phone = document.getElementById('pv-phone').value.trim();
+      const address = document.getElementById('pv-address').value.trim();
+      const contact = document.getElementById('pv-contact').value.trim();
+      const isActive = document.getElementById('pv-active').checked;
+      if (!name || !taxid || !email) { toast('Nombre, NIT y Correo son obligatorios.', 'err'); return; }
+      const now = new Date().toISOString();
+      const who = session?.Username || 'System';
+      if (!id) {
+        const prov = { Id: 'prov_' + Date.now(), FullName: name, TaxId: taxid, Email: email, Phone: phone, Address: address, ContactPerson: contact, IsActive: isActive, UpdatedAt: now, UpdatedBy: who };
+        DB.suppliers.push(prov);
+        audit(session.Id, session.Username, 'Supplier_Created', `Proveedor '${name}' creado.`);
+        enqueue('Suppliers', prov.Id, 'INSERT', prov);
+      } else {
+        const idx = DB.suppliers.findIndex(p => p.Id === id);
+        if (idx < 0) return;
+        DB.suppliers[idx] = { ...DB.suppliers[idx], FullName: name, TaxId: taxid, Email: email, Phone: phone, Address: address, ContactPerson: contact, IsActive: isActive, UpdatedAt: now, UpdatedBy: who };
+        audit(session.Id, session.Username, 'Supplier_Updated', `Proveedor '${name}' actualizado.`);
+        enqueue('Suppliers', id, 'UPDATE', DB.suppliers[idx]);
+      }
+      persist(); clearProveedorForm(); renderProveedores(); toast('Proveedor guardado.', 'ok');
+    }
+    function toggleProveedorActive() {
+      const id = document.getElementById('pv-id').value;
+      if (!id) return;
+      const idx = DB.suppliers.findIndex(p => p.Id === id);
+      if (idx < 0) return;
+      DB.suppliers[idx].IsActive = !DB.suppliers[idx].IsActive;
+      DB.suppliers[idx].UpdatedAt = new Date().toISOString();
+      const action = DB.suppliers[idx].IsActive ? 'reactivado' : 'desactivado';
+      audit(session.Id, session.Username, 'Supplier_StatusChanged', `Proveedor '${DB.suppliers[idx].FullName}' ${action}.`);
+      enqueue('Suppliers', id, 'UPDATE', DB.suppliers[idx]);
+      persist(); selectProveedor(DB.suppliers[idx]); renderProveedores();
+      toast(`Proveedor ${action}.`, 'ok');
+    }
+
+    // ══════════════════════════════════════════
+    // COMPRAS / ENTRADAS DE INVENTARIO
+    // ══════════════════════════════════════════
+    function initComprasPanel() {
+      buildPurchaseCatalogGrid();
+      buildPurchaseSupplierSelect();
+      updatePurchaseCartUI();
+      setTimeout(() => {
+        const inp = document.getElementById('purchase-ean-input');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function buildPurchaseSupplierSelect() {
+      const sel = document.getElementById('purchase-supplier');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">— Seleccionar Proveedor —</option>';
+      DB.suppliers.filter(p => p.IsActive).forEach(p => {
+        const o = document.createElement('option');
+        o.value = p.Id; o.textContent = p.FullName + ' | NIT: ' + p.TaxId;
+        sel.appendChild(o);
+      });
+      updatePurchaseSupplierInfo();
+    }
+
+    function updatePurchaseSupplierInfo() {
+      const id = document.getElementById('purchase-supplier').value;
+      const box = document.getElementById('purchase-supplier-info');
+      if (!box) return;
+      if (!id) { box.innerHTML = '<span style="color:var(--text-dim)">Selecciona un proveedor para la entrada de mercancía.</span>'; return; }
+      const p = DB.suppliers.find(x => x.Id === id);
+      if (!p) { box.innerHTML = ''; return; }
+      box.innerHTML = `<strong>${p.FullName}</strong><br>
+    NIT: ${p.TaxId} · ${p.Email}<br>
+    Contacto: ${p.ContactPerson || '—'} · Tel: ${p.Phone || '—'}`;
+    }
+
+    function buildPurchaseCatalogGrid() {
+      const grid = document.getElementById('purchase-catalog-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      DB.products.forEach(p => {
+        const total = p.WarehouseMain + p.WarehouseSecondary;
+        const div = document.createElement('div');
+        div.className = 'prod-chip';
+        div.title = 'Clic para agregar a la entrada';
+        div.onclick = () => addToPurchaseCart(p.Id, 1);
+        div.innerHTML = `<div class="ean">${p.EAN}</div>
+      <div class="pname">${p.Name}</div>
+      <div class="pprice">Costo: $${p.Cost.toLocaleString('es-CO')}</div>
+      <div class="pstock">Stock Actual: ${total} u.</div>`;
+        grid.appendChild(div);
+      });
+    }
+
+    function addByPurchaseEan() {
+      const inp = document.getElementById('purchase-ean-input');
+      const val = inp.value.trim();
+      const err = document.getElementById('purchase-ean-err');
+      if (!val) { err.textContent = 'Ingresa un código EAN-13 o SKU.'; return; }
+      const p = DB.products.find(x => x.EAN === val || x.SKU === val.toUpperCase());
+      if (!p) { err.textContent = `❌ Código '${val}' no encontrado en catálogo.`; inp.select(); return; }
+      err.textContent = '';
+      inp.value = '';
+      inp.focus();
+      addToPurchaseCart(p.Id, 1);
+    }
+
+    function addToPurchaseCart(productId, qty) {
+      const p = DB.products.find(x => x.Id === productId);
+      if (!p) return;
+      const existing = purchaseCart.find(l => l.ProductId === productId);
+      if (existing) {
+        existing.Qty += qty;
+        existing.Subtotal = existing.Qty * existing.Cost;
+      } else {
+        purchaseCart.push({
+          ProductId: p.Id, EAN: p.EAN, SKU: p.SKU, Name: p.Name,
+          Cost: p.Cost, Qty: qty, Subtotal: p.Cost * qty
+        });
+      }
+      toast(`✅ ${p.Name} · agregado a la entrada`, 'ok');
+      updatePurchaseCartUI();
+    }
+
+    function changePurchaseQty(productId, delta) {
+      const line = purchaseCart.find(l => l.ProductId === productId);
+      if (!line) return;
+      const newQty = line.Qty + delta;
+      if (newQty <= 0) { removeFromPurchaseCart(productId); return; }
+      line.Qty = newQty;
+      line.Subtotal = line.Qty * line.Cost;
+      updatePurchaseCartUI();
+    }
+
+    function changePurchaseCost(productId, val) {
+      const line = purchaseCart.find(l => l.ProductId === productId);
+      if (!line) return;
+      const c = Math.max(0, parseFloat(val) || 0);
+      line.Cost = c;
+      line.Subtotal = line.Qty * c;
+      updatePurchaseCartUI();
+    }
+
+    function removeFromPurchaseCart(productId) {
+      purchaseCart = purchaseCart.filter(l => l.ProductId !== productId);
+      updatePurchaseCartUI();
+    }
+
+    function clearPurchaseCart(full = false) {
+      if (purchaseCart.length > 0 && full && !confirm('¿Cancelar la entrada y vaciar el carrito?')) return;
+      purchaseCart = [];
+      const err = document.getElementById('purchase-ean-err');
+      if (err) err.textContent = '';
+      const obs = document.getElementById('purchase-obs');
+      if (obs) obs.value = '';
+      const inp = document.getElementById('purchase-ean-input');
+      if (inp) { inp.value = ''; inp.focus(); }
+      updatePurchaseCartUI();
+    }
+
+    function updatePurchaseCartUI() {
+      const empty = document.getElementById('purchase-cart-empty');
+      const tbl = document.getElementById('purchase-cart-tbl');
+      const body = document.getElementById('purchase-cart-body');
+      const count = document.getElementById('purchase-cart-count');
+      const btn = document.getElementById('btn-finalize-purchase');
+
+      if (!empty || !tbl || !body || !count || !btn) return;
+
+      count.textContent = purchaseCart.length;
+      if (!purchaseCart.length) {
+        empty.style.display = 'block'; tbl.style.display = 'none';
+        btn.disabled = true;
+        document.getElementById('p-total').textContent = '$0.00';
+        return;
+      }
+      empty.style.display = 'none'; tbl.style.display = 'table';
+      btn.disabled = false;
+
+      body.innerHTML = '';
+      let total = 0;
+      purchaseCart.forEach(l => {
+        total += l.Subtotal;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="font-size:12px"><strong>${l.Name}</strong></td>
+      <td style="font-family:monospace;font-size:10px;color:var(--text-dim)">${l.EAN}</td>
+      <td>
+        <input type="number" value="${l.Cost}" min="0" step="any"
+          onchange="changePurchaseCost('${l.ProductId}',this.value)"
+          style="width:80px;background:#1a1a1a;border:1px solid var(--border);color:white;border-radius:3px;padding:2px 4px;font-size:11px;outline:none;text-align:right">$
+      </td>
+      <td>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changePurchaseQty('${l.ProductId}',-1)">−</button>
+          <span class="qty-val">${l.Qty}</span>
+          <button class="qty-btn" onclick="changePurchaseQty('${l.ProductId}',1)">+</button>
+        </div>
+      </td>
+      <td style="font-weight:bold;color:var(--accent)">$${l.Subtotal.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
+      <td><button class="del-btn" onclick="removeFromPurchaseCart('${l.ProductId}')">🗑</button></td>`;
+        body.appendChild(tr);
+      });
+
+      document.getElementById('p-total').textContent = '$' + total.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+    }
+
+    function finalizePurchase() {
+      if (!purchaseCart.length) { toast('La entrada está vacía.', 'err'); return; }
+      const supplierId = document.getElementById('purchase-supplier').value;
+      if (!supplierId) { toast('Por favor, selecciona un proveedor.', 'err'); return; }
+      const supplier = DB.suppliers.find(x => x.Id === supplierId);
+      const whDest = document.getElementById('purchase-warehouse').value;
+
+      let total = 0;
+      purchaseCart.forEach(l => total += l.Subtotal);
+
+      purchaseCounter++;
+      const purchaseNum = String(purchaseCounter).padStart(5, '0');
+      const now = new Date().toISOString();
+
+      // Guardar entrada
+      const purchase = {
+        Id: 'purch_' + Date.now(), PurchaseNumber: purchaseNum, Date: now,
+        SupplierId: supplierId, SupplierName: supplier.FullName,
+        Lines: purchaseCart.map(l => ({ ...l })),
+        Total: total, Warehouse: whDest,
+        Observations: document.getElementById('purchase-obs').value.trim(),
+        RegisteredBy: session.Username
+      };
+
+      // ─── ACTUALIZAR STOCK Y COSTOS EN CATALOGO ───
+      purchaseCart.forEach(line => {
+        const p = DB.products.find(x => x.Id === line.ProductId);
+        if (p) {
+          // Incrementar stock en la bodega elegida
+          if (whDest === 'Main') {
+            p.WarehouseMain += line.Qty;
+          } else {
+            p.WarehouseSecondary += line.Qty;
+          }
+          // Actualizar costo del producto al costo de compra registrado
+          p.Cost = line.Cost;
+          p.UpdatedAt = now; p.UpdatedBy = session.Username;
+          enqueue('Products', p.Id, 'UPDATE', p);
+        }
+      });
+
+      DB.purchases.push(purchase);
+      enqueue('Purchases', purchase.Id, 'INSERT', purchase);
+
+      // Auditar
+      audit(session.Id, session.Username, 'Purchase_Registered',
+        `Entrada N° ${purchaseNum} de ${supplier.FullName} por $${total.toFixed(2)} a Bodega ${whDest === 'Main' ? 'Principal' : 'Secundaria'}.`);
+
+      persist();
+      showPurchaseTicket(purchase);
+      toast(`✅ Entrada #${purchaseNum} registrada exitosamente y stock actualizado.`, 'ok');
+
+      // Limpiar y resetear
+      clearPurchaseCart();
+    }
+
+    // ══════════════════════════════════════════
+    // HISTORIAL DE COMPRAS
+    // ══════════════════════════════════════════
+    function renderHistorialCompras() {
+      const tb = document.getElementById('t-purch-history');
+      if (!tb) return;
+      const q = (document.getElementById('purch-search')?.value || '').toLowerCase();
+      tb.innerHTML = '';
+      const list = [...DB.purchases].reverse().filter(p =>
+        !q || p.PurchaseNumber.includes(q) ||
+        p.SupplierName.toLowerCase().includes(q) ||
+        p.RegisteredBy.toLowerCase().includes(q)
+      );
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:24px">Sin compras registradas.</td></tr>';
+        return;
+      }
+      const fmt = n => '$' + (n || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 });
+      list.forEach(p => {
+        const d = new Date(p.Date);
+        const dateStr = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong style="color:var(--accent)">#${p.PurchaseNumber}</strong></td>
+      <td style="font-size:11px;color:var(--text-dim)">${dateStr}</td>
+      <td>${p.SupplierName}</td>
+      <td>${p.Warehouse === 'Main' ? 'Bodega Principal' : 'Bodega Secundaria'}</td>
+      <td style="text-align:center">${p.Lines.length} item(s)</td>
+      <td style="font-weight:bold;color:var(--success)">${fmt(p.Total)}</td>
+      <td style="font-size:11px">${p.RegisteredBy}</td>
+      <td>
+        <button onclick="viewPurchaseDetail('${p.Id}')" class="btn btn-sm btn-secondary" style="font-size:10px">📄 Ver</button>
+        <button onclick="reprPurchaseTicket('${p.Id}')" class="btn btn-sm" style="font-size:10px;margin-left:4px;background:#6b2fa0;color:white;">🖨</button>
+      </td>`;
+        tb.appendChild(tr);
+
+        // Detalle expandible inline
+        const detail = document.createElement('tr');
+        detail.id = 'p-det-' + p.Id;
+        detail.style.display = 'none';
+        detail.innerHTML = `<td colspan="8" style="background:#1a1a1a;padding:10px 14px">
+      <div style="font-size:11px;margin-bottom:6px;color:var(--text-dim)">
+        <strong style="color:var(--text-white)">Detalle de líneas · Entrada N° ${p.PurchaseNumber}</strong>
+        ${p.Observations ? '<span style="margin-left:12px;font-style:italic">"' + p.Observations + '"</span>' : ''}
+      </div>
+      <table style="width:100%;font-size:11px">
+        <thead><tr style="background:transparent">
+          <th style="padding:4px 8px">Producto</th><th>EAN</th><th>Costo Unit. Compra</th><th>Cant.</th><th>Subtotal</th>
+        </tr></thead>
+        <tbody>${p.Lines.map(l => `<tr style="background:transparent">
+          <td style="padding:4px 8px">${l.Name}</td>
+          <td style="font-family:monospace;color:var(--text-dim)">${l.EAN}</td>
+          <td>${fmt(l.Cost)}</td><td>${l.Qty}</td>
+          <td style="color:var(--accent);font-weight:bold">${fmt(l.Subtotal)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </td>`;
+        tb.appendChild(detail);
+      });
+    }
+
+    function viewPurchaseDetail(id) {
+      const row = document.getElementById('p-det-' + id);
+      if (!row) return;
+      const vis = row.style.display === 'none';
+      document.querySelectorAll('[id^="p-det-"]').forEach(r => r.style.display = 'none');
+      if (vis) row.style.display = 'table-row';
+    }
+
+    function reprPurchaseTicket(id) {
+      const p = DB.purchases.find(x => x.Id === id);
+      if (p) showPurchaseTicket(p);
+    }
+
+    // ══════════════════════════════════════════
+    // VOUCHER DE COMPRA
+    // ══════════════════════════════════════════
+    function showPurchaseTicket(purchase) {
+      const fmt = n => '$' + (n || 0).toLocaleString('es-CO', { minimumFractionDigits: 2 });
+      const d = new Date(purchase.Date);
+      const dateStr = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+      document.getElementById('p-tk-num').textContent = purchase.PurchaseNumber;
+      document.getElementById('p-tk-date').textContent = dateStr;
+      document.getElementById('p-tk-user').textContent = purchase.RegisteredBy;
+      document.getElementById('p-tk-supplier').textContent = purchase.SupplierName;
+      document.getElementById('p-tk-wh').textContent = purchase.Warehouse === 'Main' ? 'Bodega Principal' : 'Bodega Secundaria';
+
+      const items = document.getElementById('p-tk-items');
+      items.innerHTML = purchase.Lines.map(l => `
+    <div class="ticket-item">
+      <span class="item-name">${l.Name}</span>
+      <span>${fmt(l.Subtotal)}</span>
+      <span class="item-detail">${l.Qty} u. × ${fmt(l.Cost)}</span>
+    </div>`).join('');
+
+      document.getElementById('p-tk-total').textContent = fmt(purchase.Total);
+
+      const obsRow = document.getElementById('p-tk-obs-row');
+      if (purchase.Observations) {
+        document.getElementById('p-tk-obs').textContent = purchase.Observations;
+        obsRow.style.display = 'block';
+      } else { obsRow.style.display = 'none'; }
+
+      document.getElementById('purchase-ticket-overlay').style.display = 'flex';
+    }
+
+    function printPurchaseTicket() {
+      const box = document.querySelector('#purchase-ticket-overlay .ticket-box').cloneNode(true);
+      box.querySelector('.ticket-actions').remove();
+      const win = window.open('', '_blank', 'width=380,height=700');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Comprobante de Entrada</title>
+    <style>
+      body{font-family:'Courier New',monospace;background:white;color:#111;margin:0;padding:0;}
+      .ticket-header{background:#6b2fa0;color:white;padding:16px;text-align:center;}
+      .ticket-header h2{font-size:18px;font-weight:900;letter-spacing:2px;margin:0;}
+      .ticket-header p{font-size:10px;margin-top:4px;opacity:.8;}
+      .ticket-body{padding:16px;font-size:12px;}
+      .ticket-sep{border:none;border-top:1px dashed #aaa;margin:10px 0;}
+      .ticket-row{display:flex;justify-content:space-between;margin:3px 0;}
+      .ticket-row.bold{font-weight:bold;}
+      .ticket-row.total{font-size:15px;font-weight:bold;border-top:2px solid #111;padding-top:8px;margin-top:8px;}
+      .ticket-item{margin:4px 0;display:grid;grid-template-columns:1fr auto;gap:4px;}
+      .ticket-item .item-name{font-weight:bold;font-size:11px;}
+      .ticket-item .item-detail{color:#555;font-size:10px;grid-column:1/3;}
+      .ticket-footer{background:#f5f5f5;padding:12px;text-align:center;font-size:10px;color:#555;border-top:1px dashed #aaa;}
+      @media print{body{margin:0;}button{display:none!important;}}
+    </style></head><body>`);
+      win.document.write(box.outerHTML);
+      win.document.write('</body></html>');
+      win.document.close();
+      setTimeout(() => { win.focus(); win.print(); }, 400);
+    }
+
+    // ══════════════════════════════════════════
+    // USUARIOS
+    // ══════════════════════════════════════════
+    function renderUsers() {
+      const tb = document.getElementById('t-usr'); tb.innerHTML = '';
+      DB.users.forEach(u => {
+        const tr = document.createElement('tr');
+        if (document.getElementById('u-id').value === u.Id) tr.classList.add('sel-row');
+        tr.onclick = () => selectUser(u);
+        tr.innerHTML = `<td><strong>${u.Username}</strong></td><td>${u.FullName}</td><td>${u.Email}</td>
+      <td><span style="color:var(--accent);font-weight:bold">${u.Role}</span></td>
+      <td><span class="tag ${u.IsActive ? 'tag-ok' : 'tag-inactive'}">${u.IsActive ? 'ACTIVO' : 'INACTIVO'}</span></td>`;
+        tb.appendChild(tr);
+      });
+    }
+    function selectUser(u) {
+      document.getElementById('u-id').value = u.Id;
+      document.getElementById('u-user').value = u.Username;
+      document.getElementById('u-name').value = u.FullName;
+      document.getElementById('u-email').value = u.Email;
+      document.getElementById('u-role').value = u.Role;
+      document.getElementById('u-active').checked = u.IsActive;
+      document.getElementById('u-pass').value = '';
+      document.getElementById('usr-form-title').textContent = 'Editar Usuario';
+      document.getElementById('btn-del-usr').style.display = 'inline-flex';
+      updatePermBox(); renderUsers();
+    }
+    function clearUserForm() {
+      document.getElementById('u-id').value = '';
+      ['u-user', 'u-name', 'u-email', 'u-pass'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('u-role').value = 'Vendedor';
+      document.getElementById('u-active').checked = true;
+      document.getElementById('usr-form-title').textContent = 'Crear Usuario';
+      document.getElementById('btn-del-usr').style.display = 'none';
+      updatePermBox(); renderUsers();
+    }
+    function updatePermBox() {
+      const r = document.getElementById('u-role').value;
+      document.getElementById('perm-admin').style.display = r === 'Administrador' ? 'block' : 'none';
+      document.getElementById('perm-vend').style.display = r === 'Vendedor' ? 'block' : 'none';
+      document.getElementById('perm-bod').style.display = r === 'Bodega' ? 'block' : 'none';
+    }
+    function saveUser() {
+      const id = document.getElementById('u-id').value;
+      const username = document.getElementById('u-user').value.trim().toLowerCase();
+      const fullName = document.getElementById('u-name').value.trim();
+      const email = document.getElementById('u-email').value.trim();
+      const role = document.getElementById('u-role').value;
+      const isActive = document.getElementById('u-active').checked;
+      const pass = document.getElementById('u-pass').value;
+      if (!username || !fullName || !email) { toast('Completa Usuario, Nombre y Correo.', 'err'); return; }
+      if (!id && !pass) { toast('Contraseña obligatoria para nuevos usuarios.', 'err'); return; }
+      if (!id) {
+        if (DB.users.find(u => u.Username === username)) { toast('El usuario ya existe.', 'err'); return; }
+        const nu = { Id: 'u_' + Date.now(), Username: username, Pass: pass, FullName: fullName, Email: email, Role: role, IsActive: isActive, CreatedAt: new Date().toISOString() };
+        DB.users.push(nu);
+        audit(session.Id, session.Username, 'User_Created', `Usuario '${username}' creado con rol ${role}.`);
+        enqueue('Users', nu.Id, 'INSERT', nu);
+      } else {
+        const idx = DB.users.findIndex(u => u.Id === id);
+        if (idx < 0) return;
+        DB.users[idx] = { ...DB.users[idx], Username: username, FullName: fullName, Email: email, Role: role, IsActive: isActive };
+        if (pass) { DB.users[idx].Pass = pass; audit(session.Id, session.Username, 'User_PassChanged', `Clave cambiada para '${username}'.`); }
+        audit(session.Id, session.Username, 'User_Updated', `Usuario '${username}' actualizado.`);
+        enqueue('Users', id, 'UPDATE', DB.users[idx]);
+      }
+      persist(); clearUserForm(); renderUsers(); toast('Usuario guardado.', 'ok');
+    }
+    function deleteUser() {
+      const id = document.getElementById('u-id').value;
+      if (!id) return;
+      if (id === session.Id) { toast('No puedes eliminarte a ti mismo.', 'err'); return; }
+      const u = DB.users.find(x => x.Id === id);
+      if (!u) return;
+      if (!confirm(`¿Eliminar permanentemente al usuario '${u.Username}'?`)) return;
+      DB.users = DB.users.filter(x => x.Id !== id);
+      audit(session.Id, session.Username, 'User_Deleted', `Usuario '${u.Username}' eliminado.`);
+      enqueue('Users', id, 'DELETE', null);
+      persist(); clearUserForm(); renderUsers(); toast('Usuario eliminado.', 'ok');
+    }
+
+    // ══════════════════════════════════════════
+    // AUDITORÍA
+    // ══════════════════════════════════════════
+    function renderAudit() {
+      const tb = document.getElementById('t-audit');
+      if (!tb) return;
+      tb.innerHTML = '';
+      DB.audit.forEach(l => {
+        const tr = document.createElement('tr');
+        const t = l.EventTime ? l.EventTime.slice(0, 19).replace('T', ' ') : '';
+        const color = l.EventType.includes('Failed') || l.EventType.includes('Denied') ? 'var(--danger)' :
+          l.EventType.includes('Success') || l.EventType.includes('Created') || l.EventType.includes('Registered') ? 'var(--success)' : 'var(--accent)';
+        tr.innerHTML = `<td style="font-size:11px;color:var(--text-dim)">${t}</td>
+      <td><span style="color:${color};font-weight:bold;font-size:11px">${l.EventType}</span></td>
+      <td>${l.Username}</td><td style="font-family:monospace;font-size:10px">${l.UserId}</td>
+      <td style="color:var(--text-dim);font-size:11px">${l.MachineName}</td>
+      <td style="font-size:12px">${l.Description}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    // ══════════════════════════════════════════
+    // OFFLINE-FIRST: OUTBOX & SYNC
+    // ══════════════════════════════════════════
+    function enqueue(table, recordId, op, payload) {
+      if (!DB.queue) DB.queue = [];
+      DB.queue.push({ Id: 'q_' + Date.now(), TableName: table, RecordId: recordId, Operation: op, PayloadJson: payload ? JSON.stringify(payload) : '', CreatedAt: new Date().toISOString() });
+      persist(); updateOutbox();
+      showMsg(isOnline ? 'Cambio encolado para sincronización.' : 'Modo offline: cambio guardado localmente.');
+    }
+    function updateOutbox() {
+      const n = (DB.queue || []).length;
+      document.getElementById('ob-n').textContent = n;
+    }
+    function showMsg(msg) {
+      const el = document.getElementById('sync-msg');
+      if (el) el.textContent = msg;
+    }
+    function toggleNet() {
+      isOnline = !isOnline;
+      const pill = document.getElementById('net-pill');
+      const txt = document.getElementById('net-txt');
+      if (isOnline) { pill.classList.remove('offline'); txt.textContent = 'Online'; showMsg('Conectado. Sincronización en curso...'); setTimeout(syncNow, 1000); }
+      else { pill.classList.add('offline'); txt.textContent = 'Offline'; showMsg('Modo offline. Cambios se acumularán localmente.'); }
+    }
+    function syncNow() {
+      if (!isOnline) { toast('Sin conexión. Activa Online para sincronizar.', 'err'); return; }
+      if (!DB.queue.length) { showMsg('✅ Base de datos al día. Sin cambios pendientes.'); toast('✅ Todo sincronizado.', 'ok'); return; }
+      showMsg(`Procesando ${DB.queue.length} transacción(es)...`);
+      setTimeout(processQueue, 700);
+    }
+    function processQueue() {
+      if (!DB.queue.length) { showMsg('✅ Sincronización completada.'); updateOutbox(); return; }
+      const item = DB.queue[0];
+      if (item.Operation === 'DELETE') {
+        Cloud.users = Cloud.users.filter(u => u.Id !== item.RecordId);
+        persist(); DB.queue.shift(); persist(); updateOutbox(); processQueue(); return;
+      }
+      if (item.TableName === 'Users') {
+        const cloudUser = Cloud.users.find(u => u.Id === item.RecordId);
+        const localUser = JSON.parse(item.PayloadJson);
+        if (cloudUser && cloudUser.FullName !== localUser.FullName && cloudUser._cloudModified) {
+          audit('System', 'SyncEngine', 'Conflict_Detected', `Conflicto en Users ID: ${item.RecordId}`);
+          document.getElementById('c-rid').textContent = item.RecordId;
+          document.getElementById('c-local').textContent = JSON.stringify(localUser, null, 2);
+          document.getElementById('c-remote').textContent = JSON.stringify(cloudUser, null, 2);
+          document.getElementById('conflict-overlay').style.display = 'flex';
+          return;
+        }
+        Cloud.users = Cloud.users.filter(u => u.Id !== item.RecordId);
+        Cloud.users.push(localUser);
+      }
+      persist(); DB.queue.shift(); persist(); updateOutbox();
+      setTimeout(processQueue, 200);
+    }
+    function resolveConflict(decision) {
+      const item = DB.queue[0];
+      const local = JSON.parse(item.PayloadJson);
+      const cloud = Cloud.users.find(u => u.Id === item.RecordId);
+      if (decision === 'remote' && cloud) {
+        const idx = DB.users.findIndex(u => u.Id === cloud.Id);
+        if (idx >= 0) { DB.users[idx] = { ...cloud }; delete DB.users[idx]._cloudModified; }
+        audit('System', 'SyncEngine', 'Conflict_Resolved', `Versión NUBE aplicada para ${cloud.FullName}.`);
+        if (document.getElementById('p-Usuarios')?.classList.contains('active')) renderUsers();
+      } else {
+        Cloud.users = Cloud.users.filter(u => u.Id !== local.Id);
+        Cloud.users.push(local);
+        audit('System', 'SyncEngine', 'Conflict_Resolved', `Versión LOCAL forzada para ${local.FullName}.`);
+      }
+      document.getElementById('conflict-overlay').style.display = 'none';
+      DB.queue.shift(); persist(); updateOutbox();
+      setTimeout(processQueue, 400);
+    }
+    function forceConflict() {
+      if (!isOnline) { toast('Activa Online primero.', 'err'); return; }
+      const u2 = Cloud.users.find(u => u.Id === 'u2');
+      if (u2) { u2.FullName = 'Juan Vendedor · Modificado en Nube'; u2._cloudModified = true; persist(); }
+      const lu2 = DB.users.find(u => u.Id === 'u2');
+      if (lu2) { lu2.FullName = 'Juan Vendedor · Cambio Local'; lu2.UpdatedAt = new Date().toISOString(); persist(); enqueue('Users', 'u2', 'UPDATE', lu2); }
+      if (document.getElementById('p-Usuarios')?.classList.contains('active')) renderUsers();
+      toast('Conflicto de sincronización preparado. Presiona Sync.', 'ok');
+    }
+
+    window.onload = initDB;
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,534 @@
+<Window x:Class="InventarioApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2000/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2000/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:InventarioApp"
+        xmlns:views="clr-namespace:InventarioApp.Views"
+        xmlns:viewmodels="clr-namespace:InventarioApp.ViewModels"
+        mc:Ignorable="d"
+        Title="StockPoint - Consola de Operaciones" 
+        Height="760" Width="1200"
+        Background="{StaticResource BgDarkBrush}"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource SegoeFluent}">
+
+    <Window.Resources>
+        <!-- DataTemplate para vincular UserManagementViewModel con su vista de forma declarativa -->
+        <DataTemplate DataType="{x:Type viewmodels:UserManagementViewModel}">
+            <views:UserManagementView/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Estructura Principal: Sidebar y Panel de Trabajo -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230"/> <!-- Sidebar Lateral -->
+            <ColumnDefinition Width="*"/>   <!-- Contenedor Principal -->
+        </Grid.ColumnDefinitions>
+
+        <!-- ==================== SIDEBAR LATERAL ==================== -->
+        <Border Grid.Column="0" Background="{StaticResource BgSidebarBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <Grid Padding="15,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Nombre Software -->
+                    <RowDefinition Height="Auto"/> <!-- Datos Usuario Activo -->
+                    <RowDefinition Height="*"/>    <!-- Botones de Navegación -->
+                    <RowDefinition Height="Auto"/> <!-- Botón Salida -->
+                </Grid.RowDefinitions>
+
+                <!-- 1. Cabecera -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,25">
+                    <TextBlock Text="StockPoint" Foreground="{StaticResource AccentBrush}" FontSize="18" FontWeight="Black" LetterSpacing="2"/>
+                    <TextBlock Text="Módulo Administrativo" Foreground="{StaticResource TextDimBrush}" FontSize="10" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- 2. Usuario Conectado -->
+                <Border Grid.Row="1" Background="#202020" CornerRadius="6" Padding="12" Margin="0,0,0,30" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="{Binding CurrentUser.FullName}" Foreground="{StaticResource TextWhiteBrush}" FontSize="13" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Badge de Rol -->
+                            <Border Background="#333" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentUser.Role}" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold"/>
+                            </Border>
+                            <TextBlock Text="Online" Foreground="{StaticResource SuccessBrush}" FontSize="11" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. Botones del Menú Lateral -->
+                <StackPanel Grid.Row="2" Spacing="6">
+                    <Button Content="Dashboard" Command="{Binding NavigateCommand}" CommandParameter="Dashboard" HorizontalAlignment="Stretch" Padding="14,10" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveViewName}" Value="Dashboard">
+                                        <Setter Property="Background" Value="#252526"/>
+                                        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Catálogo e Inventario" Command="{Binding NavigateCommand}" CommandParameter="Inventario" HorizontalAlignment="Stretch" Padding="14,10" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveViewName}" Value="Inventario">
+                                        <Setter Property="Background" Value="#252526"/>
+                                        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Clientes y CRM" Command="{Binding NavigateCommand}" CommandParameter="CRM" HorizontalAlignment="Stretch" Padding="14,10" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveViewName}" Value="CRM">
+                                        <Setter Property="Background" Value="#252526"/>
+                                        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Separator Background="{StaticResource BorderBrush}" Margin="0,10"/>
+
+                    <TextBlock Text="ADMINISTRACIÓN" Foreground="{StaticResource TextDimBrush}" FontSize="9" FontWeight="Bold" Margin="8,0,0,6"/>
+
+                    <Button Content="Gestión de Usuarios" Command="{Binding NavigateCommand}" CommandParameter="Usuarios" HorizontalAlignment="Stretch" Padding="14,10" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveViewName}" Value="Usuarios">
+                                        <Setter Property="Background" Value="#252526"/>
+                                        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Auditoría de Accesos" Command="{Binding NavigateCommand}" CommandParameter="Auditoria" HorizontalAlignment="Stretch" Padding="14,10" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" HorizontalContentAlignment="Left">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveViewName}" Value="Auditoria">
+                                        <Setter Property="Background" Value="#252526"/>
+                                        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <!-- 4. Salida del Sistema -->
+                <Button Grid.Row="3" Content="Cerrar Sesión" Command="{Binding LogoutCommand}" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Stretch" Foreground="{StaticResource DangerBrush}" BorderBrush="#442225" Padding="10,8"/>
+            </Grid>
+        </Border>
+
+        <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="65"/>  <!-- Barra Superior (Header) -->
+                <RowDefinition Height="*"/>   <!-- Área de Contenido -->
+                <RowDefinition Height="30"/>  <!-- Barra de Estado (Footer) -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. BARRA SUPERIOR (HEADER) -->
+            <Border Grid.Row="0" Background="{StaticResource BgCardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <Grid Padding="20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/> <!-- Título de Vista -->
+                        <ColumnDefinition Width="*"/>    <!-- Controles de Sync -->
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="{Binding ActiveViewName}" Foreground="{StaticResource TextWhiteBrush}" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+
+                    <!-- Panel de Controles Offline-First -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="10">
+                        <!-- Simular Cambio en Nube -->
+                        <Button Content="Provocar Conflicto Nube" Command="{Binding ForceCloudConflictCommand}" Style="{StaticResource SecondaryButton}" Padding="10,6" FontSize="11" Foreground="{StaticResource WarningBrush}" BorderBrush="{StaticResource WarningBrush}"/>
+
+                        <!-- Interruptor Red -->
+                        <Border BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1" CornerRadius="4" Background="#181818" Padding="10,4">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse Width="10" Height="10" VerticalAlignment="Center">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding NetworkState}" Value="Offline">
+                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock Text="{Binding NetworkState}" Foreground="White" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Button Content="Alternar Red" Command="{Binding ToggleNetworkCommand}" Background="Transparent" Foreground="{StaticResource AccentBrush}" FontSize="10" BorderThickness="0" Padding="4,0" Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Cola Outbox -->
+                        <Border Background="#252526" CornerRadius="4" Padding="10,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding OutboxCount}" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" FontSize="12"/>
+                                <TextBlock Text="Cambios locales" Foreground="{StaticResource TextDimBrush}" FontSize="11"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sincronizar -->
+                        <Button Content="Sincronizar" Command="{Binding SyncNowCommand}" Padding="16,6" FontSize="12"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 2. ÁREA DE TRABAJO DINÁMICA -->
+            <Grid Grid.Row="1" Background="{StaticResource BgDarkBrush}" Padding="20">
+                
+                <!-- Ruteador de Contenido Basado en ActiveViewName -->
+                
+                <!-- A. VISTA DASHBOARD -->
+                <ScrollViewer Style="{StaticResource ModernScrollViewer}" VerticalScrollBarVisibility="Auto" Visibility="{Binding ActiveViewName, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Dashboard}">
+                    <Grid Visibility="{Binding ActiveViewName, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Dashboard}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- KPIs Tarjetas -->
+                            <RowDefinition Height="Auto"/> <!-- Gráficos / Listas -->
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- KPIs -->
+                        <UniformGrid Columns="4" Grid.Row="0" Margin="0,0,0,20">
+                            <!-- Card 1 -->
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="VALOR INVENTARIO" Foreground="{StaticResource TextDimBrush}" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="$54,820.00" Foreground="{StaticResource TextWhiteBrush}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0"/>
+                                    <TextBlock Text="4 productos en catálogo" Foreground="{StaticResource SuccessBrush}" FontSize="11" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card 2 -->
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="ALERTA STOCK MÍNIMO" Foreground="{StaticResource TextDimBrush}" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="1 Alerta" Foreground="{StaticResource DangerBrush}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0"/>
+                                    <TextBlock Text="Monitor UltraWide 29"" bajo" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card 3 -->
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="CLIENTES CRM" Foreground="{StaticResource TextDimBrush}" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="3 Clientes" Foreground="{StaticResource AccentBrush}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0"/>
+                                    <TextBlock Text="1 Prospecto | 1 Propuesta | 1 Ganado" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Card 4 -->
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="SINCRONIZACIÓN COLA" Foreground="{StaticResource TextDimBrush}" FontSize="10" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding OutboxCount, StringFormat='{}{0} Pendientes'}" Foreground="{StaticResource WarningBrush}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0"/>
+                                    <TextBlock Text="Sincronización secuencial" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- Gráfico Vectorial Integrado y Bitácora -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Gráfico de Ventas Vectorial -->
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,15,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Historial de Ventas Corporativas (Simulado)" Foreground="{StaticResource TextWhiteBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,15"/>
+                                    
+                                    <!-- Canvas de Curva Vectorial SVG en WPF -->
+                                    <Canvas Grid.Row="1" Height="220" Background="#181818">
+                                        <!-- Líneas de Guía -->
+                                        <Line X1="0" Y1="50" X2="500" Y2="50" Stroke="#222" StrokeThickness="1"/>
+                                        <Line X1="0" Y1="110" X2="500" Y2="110" Stroke="#222" StrokeThickness="1"/>
+                                        <Line X1="0" Y1="170" X2="500" Y2="170" Stroke="#222" StrokeThickness="1"/>
+                                        
+                                        <!-- Curva de Ventas Puntos -->
+                                        <Path Stroke="{StaticResource AccentBrush}" StrokeThickness="3" Data="M 10,180 C 80,140 120,60 200,90 C 280,120 340,30 450,20"/>
+                                        <Path Fill="#150078d4" Data="M 10,180 C 80,140 120,60 200,90 C 280,120 340,30 450,20 L 450,220 L 10,220 Z"/>
+                                        
+                                        <Ellipse Canvas.Left="200" Canvas.Top="85" Width="10" Height="10" Fill="White" Stroke="{StaticResource AccentBrush}" StrokeThickness="2"/>
+                                        <Ellipse Canvas.Left="450" Canvas.Top="15" Width="10" Height="10" Fill="White" Stroke="{StaticResource AccentBrush}" StrokeThickness="2"/>
+                                    </Canvas>
+                                </Grid>
+                            </Border>
+
+                            <!-- Registro de Estado del Motor Offline -->
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="16" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Bitácora de Sincronización" Foreground="{StaticResource TextWhiteBrush}" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                                    
+                                    <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+                                        <TextBlock Text="Consola de Estado:" Foreground="{StaticResource TextDimBrush}" FontSize="12" HorizontalAlignment="Center"/>
+                                        <Border Background="#252526" Padding="12" CornerRadius="4" BorderBrush="{StaticResource BorderLightBrush}" BorderThickness="1">
+                                            <TextBlock Text="{Binding SyncStatusMessage}" Foreground="{StaticResource AccentBrush}" FontSize="13" FontWeight="Bold" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="El sistema intenta sincronizar automáticamente al recuperar la red." Foreground="{StaticResource TextDimBrush}" FontSize="10" TextAlignment="Center" Margin="0,10,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- B. VISTA INVENTARIO (MULTIBODEGA) -->
+                <Grid Visibility="{Binding ActiveViewName, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Inventario}">
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Filtro / Botón -->
+                                <RowDefinition Height="*"/>    <!-- DataGrid -->
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Control de Inventario Detallado Multibodega" Foreground="{StaticResource TextWhiteBrush}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <TextBlock Text="Información en tiempo real (Base SQLite)" Foreground="{StaticResource TextDimBrush}" FontSize="11" Grid.Column="1" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- DataGrid de Productos -->
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.ProductsList}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="SKU" Binding="{Binding SKU}" Width="100"/>
+                                    <DataGridTextColumn Header="Nombre del Producto" Binding="{Binding Name}" Width="250"/>
+                                    <DataGridTextColumn Header="Categoría" Binding="{Binding Category}" Width="150"/>
+                                    <DataGridTextColumn Header="Costo (Prom.)" Binding="{Binding Cost, StringFormat='{}{0:C}'}" Width="110"/>
+                                    <DataGridTextColumn Header="Precio Venta" Binding="{Binding Price, StringFormat='{}{0:C}'}" Width="110"/>
+                                    <DataGridTextColumn Header="Bodega Principal" Binding="{Binding WarehouseMain}" Width="120"/>
+                                    <DataGridTextColumn Header="Bodega Secund." Binding="{Binding WarehouseSecondary}" Width="120"/>
+                                    <DataGridTextColumn Header="Stock Total" Binding="{Binding TotalStock}" Width="100"/>
+                                    <DataGridTemplateColumn Header="Estado Stock" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                                                    <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Foreground="White" FontSize="10" FontWeight="Bold">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="ÓPTIMO"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                                                        <Setter Property="Text" Value="STOCK BAJO"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- C. VISTA CRM CLIENTES (PROSPECTOS / LEADS) -->
+                <Grid Visibility="{Binding ActiveViewName, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=CRM}">
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Filtro -->
+                                <RowDefinition Height="*"/>    <!-- DataGrid -->
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Pipeline CRM de Clientes &amp; Cuentas por Cobrar" Foreground="{StaticResource TextWhiteBrush}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <TextBlock Text="Seguimiento de etapas de negocio" Foreground="{StaticResource TextDimBrush}" FontSize="11" Grid.Column="1" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- DataGrid de Clientes -->
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.CustomersList}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Nombre / Razón Social" Binding="{Binding FullName}" Width="250"/>
+                                    <DataGridTextColumn Header="Identificación (RUT/NIT)" Binding="{Binding TaxId}" Width="150"/>
+                                    <DataGridTextColumn Header="Correo de Contacto" Binding="{Binding Email}" Width="200"/>
+                                    <DataGridTextColumn Header="Teléfono" Binding="{Binding Phone}" Width="130"/>
+                                    <DataGridTextColumn Header="Etapa Pipeline" Binding="{Binding PipelineStage}" Width="120"/>
+                                    <DataGridTextColumn Header="Cupo Crédito" Binding="{Binding CreditLimit, StringFormat='{}{0:C}'}" Width="120"/>
+                                    <DataGridTextColumn Header="Saldo Cartera" Binding="{Binding OutstandingBalance, StringFormat='{}{0:C}'}" Width="120"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- D. VISTA AUDITORÍA DE SEGURIDAD -->
+                <Grid Visibility="{Binding ActiveViewName, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Auditoria}">
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Bitácora Histórica de Auditoría de Accesos" Foreground="{StaticResource TextWhiteBrush}" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.AuditLogsList}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Fecha / Hora (UTC)" Binding="{Binding EventTime, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Width="160"/>
+                                    <DataGridTextColumn Header="Evento" Binding="{Binding EventType}" Width="130"/>
+                                    <DataGridTextColumn Header="Usuario" Binding="{Binding Username}" Width="120"/>
+                                    <DataGridTextColumn Header="ID Usuario" Binding="{Binding UserId}" Width="100"/>
+                                    <DataGridTextColumn Header="Terminal Cliente" Binding="{Binding MachineName}" Width="150"/>
+                                    <DataGridTextColumn Header="Descripción Detallada" Binding="{Binding Description}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- E. VISTA COMPONENTE CRUD USUARIOS (Cargado dinámicamente mediante el ContentControl vinculando el ViewModel) -->
+                <ContentControl Content="{Binding CurrentView}"/>
+
+            </Grid>
+
+            <!-- 3. BARRA DE ESTADO INFERIOR (FOOTER) -->
+            <Border Grid.Row="2" Background="{StaticResource BgSidebarBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+                <Grid Padding="15,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Text="Base de datos local SQLite activa. Persistencia garantizada Offline." Foreground="{StaticResource TextDimBrush}" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="Versión 2026.1  |  .NET Core 8.0  |  C# Desktop App" Foreground="{StaticResource TextDimBrush}" FontSize="11" Grid.Column="1" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ==================== OVERLAY CAPA RESOLUCIÓN DE CONFLICTOS ==================== -->
+        <Grid Grid.ColumnSpan="2" Background="#d0000000" Visibility="{Binding IsConflictOverlayVisible, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Visible}">
+            <Border Width="850" Height="550" Background="{StaticResource BgCardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="25" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Cabecera Título -->
+                        <RowDefinition Height="Auto"/> <!-- Advertencia -->
+                        <RowDefinition Height="*"/>    <!-- Caja Comparación -->
+                        <RowDefinition Height="Auto"/> <!-- Botones Decisiones -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Cabecera -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                        <TextBlock Text="CONSOLA INTERACTIVA DE RESOLUCIÓN DE CONFLICTOS" Foreground="{StaticResource WarningBrush}" FontSize="16" FontWeight="Bold"/>
+                        <TextBlock Text="Sincronizador Offline-First detectó modificaciones concurrentes en el servidor." Foreground="{StaticResource TextWhiteBrush}" FontSize="12" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Alerta -->
+                    <Border Grid.Row="1" Background="#1d160b" BorderBrush="{StaticResource WarningBrush}" BorderThickness="1" Padding="12" CornerRadius="4" Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="⚠" Foreground="{StaticResource WarningBrush}" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Text="Los datos en la Nube tienen una fecha de modificación posterior a tu cambio local. Elige qué versión conservar para sincronizar el registro en la base de datos empresarial central." Foreground="{StaticResource TextWhiteBrush}" FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="720"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Comparación Paralela -->
+                    <Grid Grid.Row="2" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Panel Local -->
+                        <Grid Grid.Column="0" Margin="0,0,10,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="VERSION LOCAL (Tu Computador)" Foreground="{StaticResource AccentBrush}" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <Border Grid.Row="1" Background="#151515" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10">
+                                <ScrollViewer Style="{StaticResource ModernScrollViewer}" VerticalScrollBarVisibility="Auto">
+                                    <TextBox Text="{Binding ConflictLocalData, Mode=OneWay}" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" BorderThickness="0" TextWrapping="Wrap" IsReadOnly="True" FontSize="11" FontFamily="Consolas"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Grid>
+
+                        <!-- Panel Nube -->
+                        <Grid Grid.Column="1" Margin="10,0,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="VERSION NUBE (Servidor Firestore)" Foreground="{StaticResource SuccessBrush}" FontSize="12" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <Border Grid.Row="1" Background="#151515" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10">
+                                <ScrollViewer Style="{StaticResource ModernScrollViewer}" VerticalScrollBarVisibility="Auto">
+                                    <TextBox Text="{Binding ConflictRemoteData, Mode=OneWay}" Background="Transparent" Foreground="{StaticResource TextWhiteBrush}" BorderThickness="0" TextWrapping="Wrap" IsReadOnly="True" FontSize="11" FontFamily="Consolas"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Botones de Acción -->
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding ConflictTableName, StringFormat='{}Tabla: {0}'}" Foreground="{StaticResource TextDimBrush}" FontSize="12" VerticalAlignment="Center" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ConflictRecordId, StringFormat='{}ID Registro: {0}'}" Foreground="{StaticResource TextDimBrush}" FontSize="11" Margin="20,0,0,0" VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                            <Button Content="Descartar local y USAR NUBE (Recomendado)" Command="{Binding ResolveUseRemoteCommand}" Style="{StaticResource SecondaryButton}" Padding="15,10" Foreground="{StaticResource SuccessBrush}" BorderBrush="{StaticResource SuccessBrush}"/>
+                            <Button Content="Sobrescribir nube y USAR LOCAL" Command="{Binding ResolveUseLocalCommand}" Padding="15,10"/>
+                        </StackPanel>
+                    </Grid>
+
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

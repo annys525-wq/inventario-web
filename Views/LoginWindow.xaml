@@ -1,0 +1,89 @@
+<Window x:Class="InventarioApp.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2000/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2000/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:InventarioApp.Views"
+        mc:Ignorable="d"
+        Title="ERP/CRM Corporativo - Inicio de Sesión" 
+        Height="540" Width="420"
+        Background="{StaticResource BgDarkBrush}"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        BorderBrush="{StaticResource BorderBrush}"
+        BorderThickness="1">
+
+    <Grid>
+        <!-- Diseño de Fondo de Acento con Gradiente Suave -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0c0c0c" Offset="0"/>
+                <GradientStop Color="#1e1525" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Border CornerRadius="8" Margin="24" Background="{StaticResource BgCardBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="25" Color="#000000" Opacity="0.5" ShadowDepth="5"/>
+            </Border.Effect>
+            
+            <Grid Padding="30">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Cabecera Logo -->
+                    <RowDefinition Height="Auto"/> <!-- Input Usuario -->
+                    <RowDefinition Height="Auto"/> <!-- Input Clave -->
+                    <RowDefinition Height="Auto"/> <!-- Error Label -->
+                    <RowDefinition Height="*"/>    <!-- Botón Login -->
+                    <RowDefinition Height="Auto"/> <!-- Pie Informativo -->
+                </Grid.RowDefinitions>
+
+                <!-- Cabecera Logo & Título -->
+                <StackPanel Grid.Row="0" Margin="0,10,0,30" HorizontalAlignment="Center">
+                    <!-- Icono Simulado con Elipse y Letra -->
+                    <Grid Width="60" Height="60" HorizontalAlignment="Center" Margin="0,0,0,15">
+                        <Ellipse Fill="{StaticResource AccentBrush}"/>
+                        <TextBlock Text="AG" Foreground="White" FontWeight="Bold" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource SegoeFluent}"/>
+                    </Grid>
+                    <TextBlock Text="StockPoint" Foreground="{StaticResource TextWhiteBrush}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" FontFamily="{StaticResource SegoeFluent}"/>
+                    <TextBlock Text="Sistema de Gestión de Inventario" Foreground="{StaticResource TextDimBrush}" FontSize="12" Margin="0,5,0,0" HorizontalAlignment="Center" FontFamily="{StaticResource SegoeFluent}"/>
+                </StackPanel>
+
+                <!-- Input Usuario -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,18">
+                    <TextBlock Text="Nombre de Usuario" Foreground="{StaticResource TextDimBrush}" FontSize="12" Margin="0,0,0,6" FontFamily="{StaticResource SegoeFluent}"/>
+                    <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" Name="TxtUser" Height="38" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Input Clave -->
+                <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                    <TextBlock Text="Contraseña" Foreground="{StaticResource TextDimBrush}" FontSize="12" Margin="0,0,0,6" FontFamily="{StaticResource SegoeFluent}"/>
+                    <PasswordBox Name="TxtPassword" Height="38" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Etiqueta de Error -->
+                <TextBlock Grid.Row="3" Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}" FontSize="12" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,5,0,10" Height="32" TextAlignment="Center" FontWeight="SemiBold" Visibility="{Binding ErrorMessage, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Visible}"/>
+
+                <!-- Botón de Acción -->
+                <StackPanel Grid.Row="4" VerticalAlignment="Center">
+                    <Button Content="Iniciar Sesión" 
+                            Command="{Binding LoginCommand}" 
+                            CommandParameter="{Binding ElementName=TxtPassword}"
+                            Height="40" FontSize="14" FontWeight="Bold"
+                            IsEnabled="{Binding IsNotBusy}"/>
+                    
+                    <!-- Barra de progreso simulada para Busy State -->
+                    <ProgressBar Height="4" Margin="0,15,0,0" IsIndeterminate="True" 
+                                 Visibility="{Binding IsBusy, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Visible}" 
+                                 Background="Transparent" BorderThickness="0" Foreground="{StaticResource AccentBrush}"/>
+                </StackPanel>
+
+                <!-- Pie de Ventana -->
+                <StackPanel Grid.Row="5" VerticalAlignment="Bottom" Margin="0,10,0,0">
+                    <Separator Background="{StaticResource BorderBrush}" Margin="0,0,0,10"/>
+                    <TextBlock Text="Credenciales de Prueba Semilla:" Foreground="{StaticResource TextDimBrush}" FontSize="10" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Admin: admin / admin123  |  Vendedor: vendedor / vendedor123" Foreground="{StaticResource TextDimBrush}" FontSize="10" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
