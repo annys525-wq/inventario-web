@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Google.Cloud.Firestore;
 
 namespace Inventario.WebAPI.Models
 {
@@ -10,15 +11,24 @@ namespace Inventario.WebAPI.Models
         Bodega
     }
 
+    [FirestoreData]
     public class User
     {
+        [FirestoreProperty]
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        [FirestoreProperty]
         public string Username { get; set; } = string.Empty;
+        [FirestoreProperty]
         public string PasswordHash { get; set; } = string.Empty;
+        [FirestoreProperty]
         public string FullName { get; set; } = string.Empty;
+        [FirestoreProperty]
         public string Email { get; set; } = string.Empty;
+        [FirestoreProperty]
         public UserRole Role { get; set; }
+        [FirestoreProperty]
         public bool IsActive { get; set; } = true;
+        [FirestoreProperty]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Devuelve los permisos asociados al rol del usuario

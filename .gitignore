@@ -10,6 +10,7 @@ obj/
 
 # Secretos y configuración local
 appsettings.Development.json
+firebase_credentials.json
 *.pfx
 *.p12
 

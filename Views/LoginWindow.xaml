@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InventarioApp.Views"
+        xmlns:conv="clr-namespace:InventarioApp.Converters"
         mc:Ignorable="d"
         Title="ERP/CRM Corporativo - Inicio de Sesión" 
         Height="540" Width="420"
@@ -12,6 +13,11 @@
         ResizeMode="NoResize"
         BorderBrush="{StaticResource BorderBrush}"
         BorderThickness="1">
+
+    <Window.Resources>
+        <conv:StringNullOrEmptyToVisibilityConverter x:Key="StringToVis" />
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
 
     <Grid>
         <!-- Diseño de Fondo de Acento con Gradiente Suave -->
@@ -61,7 +67,7 @@
                 </StackPanel>
 
                 <!-- Etiqueta de Error -->
-                <TextBlock Grid.Row="3" Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}" FontSize="12" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,5,0,10" Height="32" TextAlignment="Center" FontWeight="SemiBold" Visibility="{Binding ErrorMessage, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Visible}"/>
+                <TextBlock Grid.Row="3" Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}" FontSize="12" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,5,0,10" Height="32" TextAlignment="Center" FontWeight="SemiBold" Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVis}}"/>
 
                 <!-- Botón de Acción -->
                 <StackPanel Grid.Row="4" VerticalAlignment="Center">
@@ -73,7 +79,7 @@
                     
                     <!-- Barra de progreso simulada para Busy State -->
                     <ProgressBar Height="4" Margin="0,15,0,0" IsIndeterminate="True" 
-                                 Visibility="{Binding IsBusy, Converter={x:Static Paragraph.FontSizeProperty}, ConverterParameter=Visible}" 
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" 
                                  Background="Transparent" BorderThickness="0" Foreground="{StaticResource AccentBrush}"/>
                 </StackPanel>
 
