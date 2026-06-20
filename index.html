@@ -2553,5 +2553,63 @@
   <div id="toast"></div>
 
   <script src="app.js"></script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
+  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+  };
+
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // =========================
+  // AGREGAR PRODUCTO
+  // =========================
+  async function agregarProducto() {
+    await addDoc(collection(db, "inventario"), {
+      nombre: document.getElementById("nombre").value,
+      cantidad: Number(document.getElementById("cantidad").value),
+      precio: Number(document.getElementById("precio").value)
+    });
+
+    alert("Producto agregado");
+    cargarProductos();
+  }
+
+  // =========================
+  // LEER PRODUCTOS
+  // =========================
+  async function cargarProductos() {
+    const querySnapshot = await getDocs(collection(db, "inventario"));
+    
+    let html = "";
+    querySnapshot.forEach((item) => {
+      const data = item.data();
+
+      html += `
+        <tr>
+          <td>${data.nombre}</td>
+          <td>${data.cantidad}</td>
+          <td>${data.precio}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("tabla").innerHTML = html;
+  }
+
+  // Exponer funciones
+  window.agregarProducto = agregarProducto;
+  window.cargarProductos = cargarProductos;
+
+  // Cargar al iniciar
+  cargarProductos();
+</script>
 </body>
 </html>
