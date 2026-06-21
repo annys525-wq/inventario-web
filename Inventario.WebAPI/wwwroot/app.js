@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════
 // En producción (Railway), el frontend y el backend están en el mismo servidor,
 // por lo que usamos rutas relativas. En desarrollo local, apuntamos a localhost.
-const API_URL = "/api";
+const API_URL = window.location.hostname.includes("github.io") ? "https://inventario-web-kvt1.onrender.com/api" : "/api";
 
 let DB = { users: [], products: [], customers: [], suppliers: [], purchases: [], audit: [], queue: [], sales: [] };
 let session = null;
