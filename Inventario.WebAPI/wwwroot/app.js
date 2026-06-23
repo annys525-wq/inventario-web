@@ -980,11 +980,17 @@ async function saveCustomer() {
       body: JSON.stringify(customer)
     });
     if (res.ok) {
-      toast('Cliente guardado en Firestore.', 'ok');
-      // Refrescar datos desde la API y actualizar la vista de Gestión de Clientes
+      // La API devuelve el cliente guardado con su Id definitivo
+      const savedCustomer = await res.json();
+      toast(id ? '✅ Cliente actualizado correctamente.' : '✅ Cliente creado correctamente.', 'ok');
+
+      // Refrescar la lista de clientes desde la API
       await refreshCustomers();
-      clearCRMForm();
-      renderCRM();
+
+      // Seleccionar el cliente guardado en el formulario y resaltarlo en la lista
+      // Buscamos el cliente actualizado en DB (ya refrescado) para tener datos completos
+      const updated = DB.customers.find(c => c.Id === savedCustomer.Id) || savedCustomer;
+      selectCustomer(updated);
     } else {
       const errData = await res.json().catch(() => ({}));
       toast('Error al guardar el cliente: ' + (errData.message || res.status), 'err');
@@ -994,6 +1000,7 @@ async function saveCustomer() {
     toast('Error de red al conectar con la API.', 'err');
   }
 }
+
 
 async function toggleCustomerActive() {
   const id = document.getElementById('c-id').value;
