@@ -78,6 +78,19 @@ async function refreshAllData() {
   }
 }
 
+// Refresca solo los datos de clientes desde la API
+async function refreshCustomers() {
+  try {
+    const res = await fetch(`${API_URL}/customers`, { headers: getHeaders() });
+    if (res.ok) {
+      DB.customers = await res.json();
+    }
+  } catch (err) {
+    console.error('Error al refrescar clientes', err);
+    toast('Error de conexión al actualizar clientes.', 'err');
+  }
+}
+
 function updateOutbox() {
   const n = (DB.queue || []).length;
   document.getElementById('ob-n').textContent = n;
@@ -900,8 +913,12 @@ function renderHistory() {
 function renderCRM() {
   const tb = document.getElementById('t-crm');
   tb.innerHTML = '';
-  DB.customers.forEach(c => {
+  const showInactive = document.getElementById('crm-show-inactive')?.checked;
+  const activeId = document.getElementById('c-id').value;
+  const filtered = DB.customers.filter(c => showInactive || c.IsActive);
+  filtered.forEach(c => {
     const tr = document.createElement('tr');
+    if (activeId === c.Id) tr.classList.add('sel-row');
     tr.onclick = () => selectCustomer(c);
     tr.innerHTML = `<td><strong>${c.FullName}</strong><br><span style="font-size:10px;color:var(--text-dim)">${c.Email}</span></td>
       <td>${c.TaxId}</td>
@@ -924,6 +941,7 @@ function selectCustomer(c) {
   document.getElementById('c-active').checked = c.IsActive;
   document.getElementById('crm-form-title').textContent = 'Editar Cliente';
   document.getElementById('btn-deactivate').style.display = 'inline-flex';
+  renderCRM();
 }
 
 function clearCRMForm() {
@@ -962,14 +980,27 @@ async function saveCustomer() {
       body: JSON.stringify(customer)
     });
     if (res.ok) {
-      toast('Cliente guardado en Firestore.', 'ok');
-      await refreshAllData();
-      clearCRMForm();
+      // La API devuelve el cliente guardado con su Id definitivo
+      const savedCustomer = await res.json();
+      toast(id ? '✅ Cliente actualizado correctamente.' : '✅ Cliente creado correctamente.', 'ok');
+
+      // Refrescar la lista de clientes desde la API
+      await refreshCustomers();
+
+      // Seleccionar el cliente guardado en el formulario y resaltarlo en la lista
+      // Buscamos el cliente actualizado en DB (ya refrescado) para tener datos completos
+      const updated = DB.customers.find(c => c.Id === savedCustomer.Id) || savedCustomer;
+      selectCustomer(updated);
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      toast('Error al guardar el cliente: ' + (errData.message || res.status), 'err');
     }
   } catch (e) {
     console.error(e);
+    toast('Error de red al conectar con la API.', 'err');
   }
 }
+
 
 async function toggleCustomerActive() {
   const id = document.getElementById('c-id').value;
@@ -979,16 +1010,23 @@ async function toggleCustomerActive() {
   c.IsActive = !c.IsActive;
   
   try {
-    await fetch(`${API_URL}/customers`, {
+    const res = await fetch(`${API_URL}/customers`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(c)
     });
-    toast('Estado del cliente actualizado.', 'ok');
-    await refreshAllData();
-    clearCRMForm();
+    if (res.ok) {
+      toast('Estado del cliente actualizado.', 'ok');
+      // Refrescar solo clientes y actualizar la vista inmediatamente
+      await refreshCustomers();
+      clearCRMForm();
+      renderCRM();
+    } else {
+      toast('Error al actualizar estado del cliente.', 'err');
+    }
   } catch (e) {
     console.error(e);
+    toast('Error de red al conectar con la API.', 'err');
   }
 }
 
